@@ -5248,7 +5248,7 @@ static void CG_RGBForSaberColor( saber_colors_t color, vec3_t rgb )
 	switch( color )
 	{
 		case SABER_RED:
-			VectorSet( rgb, 1.0f, 0.2f, 0.2f );
+			VectorSet( rgb, 1.0f, 0.2f, 0.2f ); //JKFF Mark
 			break;
 		case SABER_ORANGE:
 			VectorSet( rgb, 1.0f, 0.5f, 0.1f );
@@ -5377,7 +5377,7 @@ void CG_DoSaber( vec3_t origin, vec3_t dir, float length, float lengthMax, float
 	switch( color )
 	{
 		case SABER_RED:
-			glow = cgs.media.redSaberGlowShader;
+			glow = cgs.media.redSaberGlowShader; /* JKFF: Marking */
 			blade = cgs.media.redSaberCoreShader;
 			break;
 		case SABER_ORANGE:
@@ -5409,7 +5409,7 @@ void CG_DoSaber( vec3_t origin, vec3_t dir, float length, float lengthMax, float
 	if (doLight)
 	{	// always add a light because sabers cast a nice glow before they slice you in half!!  or something...
 		vec3_t rgb={1,1,1};
-		CG_RGBForSaberColor( color, rgb );
+		CG_RGBForSaberColor( color, rgb ); // JKFF: It would seem that this is why only the glow itself turned pink upon my first edit
 		trap->R_AddLightToScene( mid, (length*1.4f) + (Q_flrand(0.0f, 1.0f)*3.0f), rgb[0], rgb[1], rgb[2] );
 	}
 

@@ -194,3 +194,8 @@ compile_commands.json
 #############
 [Bb]uild*/
 cmake-build-*
+
+#############
+## PK3 Files
+#############
+install/JediAcademy/base/*.pk3

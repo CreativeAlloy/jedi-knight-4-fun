@@ -67,7 +67,7 @@ float	pm_wadeScale = 0.70f;
 
 float	pm_vehicleaccelerate = 36.0f;
 float	pm_accelerate = 10.0f;
-float	pm_airaccelerate = 1.0f;
+float	pm_airaccelerate = 5.0f; //JKFF: Edited to 5.0f from 1.0f for easier air maneuvering
 float	pm_wateraccelerate = 4.0f;
 float	pm_flyaccelerate = 8.0f;
 
