@@ -164,6 +164,8 @@ typedef struct {
 
 	qhandle_t	redSaberGlowShader;
 	qhandle_t	redSaberCoreShader;
+	qhandle_t	pinkSaberGlowShader; // JKFF: This too for the pink sabers
+	qhandle_t	pinkSaberCoreShader;
 	qhandle_t	orangeSaberGlowShader;
 	qhandle_t	orangeSaberCoreShader;
 	qhandle_t	yellowSaberGlowShader;

@@ -5611,6 +5611,9 @@ static void CG_RGBForSaberColor( saber_colors_t color, vec3_t rgb )
 		case SABER_RED:
 			VectorSet( rgb, 1.0f, 0.2f, 0.2f );
 			break;
+		case SABER_PINK:
+			VectorSet( rgb, 1.0f, 0.1f, 1.0f );
+			break;
 		case SABER_ORANGE:
 			VectorSet( rgb, 1.0f, 0.5f, 0.1f );
 			break;
@@ -5764,6 +5767,10 @@ static void CG_DoSaber( vec3_t origin, vec3_t dir, float length, float lengthMax
 		case SABER_RED:
 			glow = cgs.media.redSaberGlowShader;
 			blade = cgs.media.redSaberCoreShader;
+			break;
+		case SABER_PINK:
+			glow = cgs.media.pinkSaberGlowShader;
+			blade = cgs.media.pinkSaberCoreShader;
 			break;
 		case SABER_ORANGE:
 			glow = cgs.media.orangeSaberGlowShader;
@@ -6600,6 +6607,9 @@ Ghoul2 Insert End
 					{
 						case SABER_RED:
 							VectorSet( rgb1, 255.0f, 0.0f, 0.0f );
+							break;
+						case SABER_PINK:
+							VectorSet( rgb1, 255.0f, 1.0f, 225.0f );
 							break;
 						case SABER_ORANGE:
 							VectorSet( rgb1, 255.0f, 64.0f, 0.0f );

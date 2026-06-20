@@ -41,6 +41,8 @@ qboolean	ui_saber_parms_parsed = qfalse;
 
 static qhandle_t redSaberGlowShader;
 static qhandle_t redSaberCoreShader;
+static qhandle_t pinkSaberGlowShader; // JKFF: This too for the pink sabers
+static qhandle_t pinkSaberCoreShader;
 static qhandle_t orangeSaberGlowShader;
 static qhandle_t orangeSaberCoreShader;
 static qhandle_t yellowSaberGlowShader;
@@ -55,6 +57,8 @@ void UI_CacheSaberGlowGraphics( void )
 {//FIXME: these get fucked by vid_restarts
 	redSaberGlowShader		= re.RegisterShader( "gfx/effects/sabers/red_glow" );
 	redSaberCoreShader		= re.RegisterShader( "gfx/effects/sabers/red_line" );
+	pinkSaberGlowShader		= re.RegisterShader( "gfx/effects/sabers/pink_glow" );
+	pinkSaberCoreShader		= re.RegisterShader( "gfx/effects/sabers/pink_line" ); // JKFF: Oh my fucking God
 	orangeSaberGlowShader		= re.RegisterShader( "gfx/effects/sabers/orange_glow" );
 	orangeSaberCoreShader		= re.RegisterShader( "gfx/effects/sabers/orange_line" );
 	yellowSaberGlowShader		= re.RegisterShader( "gfx/effects/sabers/yellow_glow" );
@@ -361,6 +365,11 @@ void UI_DoSaber( vec3_t origin, vec3_t dir, float length, float lengthMax, float
 			blade = redSaberCoreShader;
 			VectorSet( rgb, 1.0f, 0.2f, 0.2f );
 			break;
+		case SABER_PINK:
+			glow = pinkSaberGlowShader;
+			blade = pinkSaberCoreShader;
+			VectorSet( rgb, 1.0f, 0.1f, 0.7f );
+			break;
 		case SABER_ORANGE:
 			glow = orangeSaberGlowShader;
 			blade = orangeSaberCoreShader;
@@ -447,6 +456,10 @@ saber_colors_t TranslateSaberColor( const char *name )
 	{
 		return SABER_RED;
 	}
+	if ( !Q_stricmp( name, "pink" ) )
+	{
+		return SABER_PINK;
+	}
 	if ( !Q_stricmp( name, "orange" ) )
 	{
 		return SABER_ORANGE;
@@ -471,7 +484,7 @@ saber_colors_t TranslateSaberColor( const char *name )
 	{
 		return ((saber_colors_t)(Q_irand( SABER_ORANGE, SABER_PURPLE )));
 	}
-	return SABER_BLUE;
+	return SABER_BLUE; // JKFF: THIS IS WHERE THE BLUE DEFAULT CAME FROM FOR MY BLOODY PINK SABERS / I actually almost screamed at 4:33 AM because it didn't work again
 }
 
 saberType_t TranslateSaberType( const char *name )
@@ -570,7 +583,7 @@ void UI_SaberDrawBlade( itemDef_t *item, char *saberName, int saberModel, saberT
 	if ( bolt == -1 )
 	{
 		tagHack = qtrue;
-		//hmm, just fall back to the most basic tag (this will also make it work with pre-JKA saber models
+		//hmm, just fall back to the most basic tag (this will also make it work with pre-JKA saber models)
 		bolt = DC->g2_AddBolt( &item->ghoul2[saberModel], "*flash" );
 		if ( bolt == -1 )
 		{//no tag_flash either?!!

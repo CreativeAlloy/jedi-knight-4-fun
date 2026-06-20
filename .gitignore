@@ -196,6 +196,6 @@ compile_commands.json
 cmake-build-*
 
 #############
-## PK3 Files
+## Base JKA PK3 Files
 #############
-install/JediAcademy/base/*.pk3
+install/JediAcademy/base/assets?.pk3

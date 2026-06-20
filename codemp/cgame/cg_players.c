@@ -5250,6 +5250,9 @@ static void CG_RGBForSaberColor( saber_colors_t color, vec3_t rgb )
 		case SABER_RED:
 			VectorSet( rgb, 1.0f, 0.2f, 0.2f ); //JKFF Mark
 			break;
+		case SABER_PINK:
+			VectorSet( rgb, 1.0f, 0.1f, 1.0f ); //JKFF: Pink Saber Test
+			break;
 		case SABER_ORANGE:
 			VectorSet( rgb, 1.0f, 0.5f, 0.1f );
 			break;
@@ -5379,6 +5382,10 @@ void CG_DoSaber( vec3_t origin, vec3_t dir, float length, float lengthMax, float
 		case SABER_RED:
 			glow = cgs.media.redSaberGlowShader; /* JKFF: Marking */
 			blade = cgs.media.redSaberCoreShader;
+			break;
+		case SABER_PINK:
+			glow = cgs.media.pinkSaberGlowShader; /* JKFF: Pink Saber Test */
+			blade = cgs.media.pinkSaberCoreShader;
 			break;
 		case SABER_ORANGE:
 			glow = cgs.media.orangeSaberGlowShader;

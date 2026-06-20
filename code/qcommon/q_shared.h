@@ -319,6 +319,7 @@ typedef enum {
 typedef enum
 {
 	SABER_RED,
+	SABER_PINK, // JKFF: Apparently this also exists, used for pink sabers now
 	SABER_ORANGE,
 	SABER_YELLOW,
 	SABER_GREEN,

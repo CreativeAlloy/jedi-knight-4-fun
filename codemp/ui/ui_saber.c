@@ -42,6 +42,8 @@ qboolean	ui_saber_parms_parsed = qfalse;
 
 static qhandle_t redSaberGlowShader;
 static qhandle_t redSaberCoreShader;
+static qhandle_t pinkSaberGlowShader;
+static qhandle_t pinkSaberCoreShader; // JKFF: Because of course there's more
 static qhandle_t orangeSaberGlowShader;
 static qhandle_t orangeSaberCoreShader;
 static qhandle_t yellowSaberGlowShader;
@@ -54,9 +56,11 @@ static qhandle_t purpleSaberGlowShader;
 static qhandle_t purpleSaberCoreShader;
 
 void UI_CacheSaberGlowGraphics( void )
-{//FIXME: these get fucked by vid_restarts
+{//FIXME: these get fucked by vid_restarts // JKFF: My mind gets fucked by all this C++ C bullshit in all honesty
 	redSaberGlowShader			= trap->R_RegisterShaderNoMip( "gfx/effects/sabers/red_glow" );
 	redSaberCoreShader			= trap->R_RegisterShaderNoMip( "gfx/effects/sabers/red_line" );
+	pinkSaberGlowShader			= trap->R_RegisterShaderNoMip( "gfx/effects/sabers/pink_glow" );
+	pinkSaberCoreShader			= trap->R_RegisterShaderNoMip( "gfx/effects/sabers/pink_line" ); // JKFF: And it's still fucking blue
 	orangeSaberGlowShader		= trap->R_RegisterShaderNoMip( "gfx/effects/sabers/orange_glow" );
 	orangeSaberCoreShader		= trap->R_RegisterShaderNoMip( "gfx/effects/sabers/orange_line" );
 	yellowSaberGlowShader		= trap->R_RegisterShaderNoMip( "gfx/effects/sabers/yellow_glow" );
@@ -265,6 +269,11 @@ void UI_DoSaber( vec3_t origin, vec3_t dir, float length, float lengthMax, float
 			glow = redSaberGlowShader;
 			blade = redSaberCoreShader;
 			VectorSet( rgb, 1.0f, 0.2f, 0.2f );
+			break;
+		case SABER_PINK:
+			glow = pinkSaberGlowShader;
+			blade = pinkSaberCoreShader;
+			VectorSet( rgb, 1.0f, 0.1f, 0.7f );
 			break;
 		case SABER_ORANGE:
 			glow = orangeSaberGlowShader;

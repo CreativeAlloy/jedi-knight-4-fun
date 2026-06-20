@@ -168,6 +168,8 @@ qboolean BG_ParseLiteralSilent( const char **data, const char *string ) {
 saber_colors_t TranslateSaberColor( const char *name ) {
 	if ( !Q_stricmp( name, "red" ) )
 		return SABER_RED;
+	if ( !Q_stricmp( name, "pink" ) )
+		return SABER_PINK;
 	if ( !Q_stricmp( name, "orange" ) )
 		return SABER_ORANGE;
 	if ( !Q_stricmp( name, "yellow" ) )
@@ -186,6 +188,7 @@ saber_colors_t TranslateSaberColor( const char *name ) {
 
 const char *SaberColorToString( saber_colors_t color ) {
 	if ( color == SABER_RED )		return "red";
+	if ( color == SABER_PINK )		return "pink";
 	if ( color == SABER_ORANGE )	return "orange";
 	if ( color == SABER_YELLOW )	return "yellow";
 	if ( color == SABER_GREEN )		return "green";

@@ -3088,6 +3088,17 @@ static void FS_AddGameDirectory( const char *path, const char *dir ) {
 
 	pakfiles = Sys_ListFiles( curpath, ".pk3", NULL, &numfiles, qfalse );
 
+	/* JKFF: Debugging why I can't add my pk3 file with this */
+
+	Com_Printf("Scanning directory: %s\n", curpath);
+
+	for (int i = 0; i < numfiles; i++)
+	{
+		Com_Printf("  Found pk3 candidate: %s\n", pakfiles[i]);
+	}
+
+	/* JKFF: End of debug code */
+
 	if ( numfiles > 1 ) {
 		qsort( pakfiles, numfiles, sizeof(char*), paksort );
 	}

@@ -173,7 +173,7 @@ typedef enum legacyFixes_e {
 	Forks of OpenJK should NOT add to or modify the legacy fixes values
 	Removal, replacement or adding of new flags might lead to incompatibilities
 	Forks should define their own configstring or serverinfo cvar instead of modifying this
-	*/
+	*/ //JKFF: Please worry not about what I do with this fork, I won't be merging any of it with your origin branch haha. Hi.
 } legacyFixes_t;
 
 typedef enum {

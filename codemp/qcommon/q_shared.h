@@ -349,6 +349,7 @@ typedef enum {
 typedef enum
 {
 	SABER_RED,
+	SABER_PINK,
 	SABER_ORANGE,
 	SABER_YELLOW,
 	SABER_GREEN,
