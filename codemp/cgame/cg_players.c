@@ -5251,7 +5251,7 @@ static void CG_RGBForSaberColor( saber_colors_t color, vec3_t rgb )
 			VectorSet( rgb, 1.0f, 0.2f, 0.2f ); //JKFF Mark
 			break;
 		case SABER_PINK:
-			VectorSet( rgb, 1.0f, 0.1f, 1.0f ); //JKFF: Pink Saber Test
+			VectorSet( rgb, 1.0f, 0.1f, 0.8f ); //JKFF: Pink Saber Test
 			break;
 		case SABER_ORANGE:
 			VectorSet( rgb, 1.0f, 0.5f, 0.1f );
@@ -6380,6 +6380,9 @@ CheckTrail:
 						case SABER_RED:
 							VectorSet( rgb1, 255.0f, 0.0f, 0.0f );
 							break;
+						case SABER_PINK:
+							VectorSet( rgb1, 255.0f, 1.0f, 190.0f ); // JKFF: Here I used the unhappy process of trying to make pink blurs for several hours and I need analgin now THIS RIGHT HERE FIXED IT
+							break; // JKFF: This part literally controls the blur / trail color, so if you want to make a new color for a saber, just add it to the switch and set the RGB values here
 						case SABER_ORANGE:
 							VectorSet( rgb1, 255.0f, 64.0f, 0.0f );
 							break;
