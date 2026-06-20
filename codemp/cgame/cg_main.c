@@ -630,6 +630,8 @@ static void CG_RegisterSounds( void ) {
 	cgs.media.redSaberCoreShader		= trap->R_RegisterShader( "gfx/effects/sabers/red_line" );
 	cgs.media.pinkSaberGlowShader		= trap->R_RegisterShader( "gfx/effects/sabers/pink_glow" ); // JKFF: Adding Pink Saber stuff here, should be inside... assets2026jkff.pk3 which I will need to somehow exempt from being gitignored
 	cgs.media.pinkSaberCoreShader		= trap->R_RegisterShader( "gfx/effects/sabers/pink_line" );
+	cgs.media.tealSaberGlowShader		= trap->R_RegisterShader( "gfx/effects/sabers/teal_glow" );
+	cgs.media.tealSaberCoreShader		= trap->R_RegisterShader( "gfx/effects/sabers/teal_line" );
 	cgs.media.orangeSaberGlowShader		= trap->R_RegisterShader( "gfx/effects/sabers/orange_glow" );
 	cgs.media.orangeSaberCoreShader		= trap->R_RegisterShader( "gfx/effects/sabers/orange_line" );
 	cgs.media.yellowSaberGlowShader		= trap->R_RegisterShader( "gfx/effects/sabers/yellow_glow" );

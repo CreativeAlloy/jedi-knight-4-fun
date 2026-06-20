@@ -180,6 +180,8 @@ saber_colors_t TranslateSaberColor( const char *name ) {
 		return SABER_BLUE;
 	if ( !Q_stricmp( name, "purple" ) )
 		return SABER_PURPLE;
+	if ( !Q_stricmp( name, "teal" ) )
+		return SABER_TEAL;
 	if ( !Q_stricmp( name, "random" ) )
 		return (saber_colors_t)Q_irand( SABER_ORANGE, SABER_PURPLE );
 
@@ -194,6 +196,7 @@ const char *SaberColorToString( saber_colors_t color ) {
 	if ( color == SABER_GREEN )		return "green";
 	if ( color == SABER_BLUE )		return "blue";
 	if ( color == SABER_PURPLE )	return "purple";
+	if ( color == SABER_TEAL )		return "teal";
 
 	return NULL;
 }

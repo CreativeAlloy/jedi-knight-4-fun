@@ -5268,6 +5268,9 @@ static void CG_RGBForSaberColor( saber_colors_t color, vec3_t rgb )
 		case SABER_PURPLE:
 			VectorSet( rgb, 0.9f, 0.2f, 1.0f );
 			break;
+		case SABER_TEAL:
+			VectorSet( rgb, 0.1f, 1.0f, 0.7f );
+			break;
 		default:
 			break;
 	}
@@ -5406,6 +5409,10 @@ void CG_DoSaber( vec3_t origin, vec3_t dir, float length, float lengthMax, float
 		case SABER_PURPLE:
 			glow = cgs.media.purpleSaberGlowShader;
 			blade = cgs.media.purpleSaberCoreShader;
+			break;
+		case SABER_TEAL:
+			glow = cgs.media.tealSaberGlowShader;
+			blade = cgs.media.tealSaberCoreShader;
 			break;
 		default:
 			glow = cgs.media.blueSaberGlowShader;
@@ -6397,6 +6404,9 @@ CheckTrail:
 							break;
 						case SABER_PURPLE:
 							VectorSet( rgb1, 220.0f, 0.0f, 255.0f );
+							break;
+						case SABER_TEAL:
+							VectorSet( rgb1, 10.0f, 255.0f, 190.0f ); // JKFF: Hopefully the process will be happier this time
 							break;
 						default:
 							VectorSet( rgb1, 0.0f, 64.0f, 255.0f );

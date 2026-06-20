@@ -1131,6 +1131,8 @@ typedef struct cgMedia_s {
 	qhandle_t	redSaberCoreShader;
 	qhandle_t	pinkSaberGlowShader; // Introducing Pink Sabers to the Galaxy! - AReis / Sufian: ??? What is this AI autocomplete on lol
 	qhandle_t	pinkSaberCoreShader;
+	qhandle_t	tealSaberGlowShader; // Introducing Teal Sabers to the Galaxy! - Sufian, on the same drugs as AReis
+	qhandle_t	tealSaberCoreShader;
 	qhandle_t	orangeSaberGlowShader;
 	qhandle_t	orangeSaberCoreShader;
 	qhandle_t	yellowSaberGlowShader;

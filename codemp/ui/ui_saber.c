@@ -44,6 +44,8 @@ static qhandle_t redSaberGlowShader;
 static qhandle_t redSaberCoreShader;
 static qhandle_t pinkSaberGlowShader;
 static qhandle_t pinkSaberCoreShader; // JKFF: Because of course there's more
+static qhandle_t tealSaberGlowShader;
+static qhandle_t tealSaberCoreShader;
 static qhandle_t orangeSaberGlowShader;
 static qhandle_t orangeSaberCoreShader;
 static qhandle_t yellowSaberGlowShader;
@@ -61,6 +63,8 @@ void UI_CacheSaberGlowGraphics( void )
 	redSaberCoreShader			= trap->R_RegisterShaderNoMip( "gfx/effects/sabers/red_line" );
 	pinkSaberGlowShader			= trap->R_RegisterShaderNoMip( "gfx/effects/sabers/pink_glow" );
 	pinkSaberCoreShader			= trap->R_RegisterShaderNoMip( "gfx/effects/sabers/pink_line" ); // JKFF: And it's still fucking blue
+	tealSaberGlowShader			= trap->R_RegisterShaderNoMip( "gfx/effects/sabers/teal_glow" );
+	tealSaberCoreShader			= trap->R_RegisterShaderNoMip( "gfx/effects/sabers/teal_line" ); // JKFF: Teal color
 	orangeSaberGlowShader		= trap->R_RegisterShaderNoMip( "gfx/effects/sabers/orange_glow" );
 	orangeSaberCoreShader		= trap->R_RegisterShaderNoMip( "gfx/effects/sabers/orange_line" );
 	yellowSaberGlowShader		= trap->R_RegisterShaderNoMip( "gfx/effects/sabers/yellow_glow" );
@@ -299,6 +303,11 @@ void UI_DoSaber( vec3_t origin, vec3_t dir, float length, float lengthMax, float
 			glow = purpleSaberGlowShader;
 			blade = purpleSaberCoreShader;
 			VectorSet( rgb, 0.9f, 0.2f, 1.0f );
+			break;
+		case SABER_TEAL:
+			glow = tealSaberGlowShader;
+			blade = tealSaberCoreShader;
+			VectorSet( rgb, 0.1f, 1.0f, 0.7f );
 			break;
 		default:
 			break;

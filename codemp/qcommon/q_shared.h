@@ -355,6 +355,7 @@ typedef enum
 	SABER_GREEN,
 	SABER_BLUE,
 	SABER_PURPLE,
+	SABER_TEAL,
 	NUM_SABER_COLORS
 } saber_colors_t;
 

@@ -353,6 +353,8 @@ void CG_RegisterWeapon( int weaponNum ) {
 		cgs.media.redSaberCoreShader		= cgi_R_RegisterShader( "gfx/effects/sabers/red_line" );
 		cgs.media.pinkSaberCoreShader		= cgi_R_RegisterShader( "gfx/effects/sabers/pink_line" ); // JKFF: Why does this game need so many redundant definitions ANYWAY
 		cgs.media.pinkSaberGlowShader		= cgi_R_RegisterShader( "gfx/effects/sabers/pink_glow" );
+		cgs.media.tealSaberCoreShader		= cgi_R_RegisterShader( "gfx/effects/sabers/teal_line" ); // JKFF: Teal color
+		cgs.media.tealSaberGlowShader		= cgi_R_RegisterShader( "gfx/effects/sabers/teal_glow" );
 		cgs.media.orangeSaberGlowShader		= cgi_R_RegisterShader( "gfx/effects/sabers/orange_glow" );
 		cgs.media.orangeSaberCoreShader		= cgi_R_RegisterShader( "gfx/effects/sabers/orange_line" );
 		cgs.media.yellowSaberGlowShader		= cgi_R_RegisterShader( "gfx/effects/sabers/yellow_glow" );

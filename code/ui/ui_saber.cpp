@@ -43,6 +43,8 @@ static qhandle_t redSaberGlowShader;
 static qhandle_t redSaberCoreShader;
 static qhandle_t pinkSaberGlowShader; // JKFF: This too for the pink sabers
 static qhandle_t pinkSaberCoreShader;
+static qhandle_t tealSaberGlowShader;
+static qhandle_t tealSaberCoreShader;
 static qhandle_t orangeSaberGlowShader;
 static qhandle_t orangeSaberCoreShader;
 static qhandle_t yellowSaberGlowShader;
@@ -59,6 +61,8 @@ void UI_CacheSaberGlowGraphics( void )
 	redSaberCoreShader		= re.RegisterShader( "gfx/effects/sabers/red_line" );
 	pinkSaberGlowShader		= re.RegisterShader( "gfx/effects/sabers/pink_glow" );
 	pinkSaberCoreShader		= re.RegisterShader( "gfx/effects/sabers/pink_line" ); // JKFF: Oh my fucking God
+	tealSaberGlowShader		= re.RegisterShader( "gfx/effects/sabers/teal_glow" ); // JKFF: Adding teal sabers
+	tealSaberCoreShader		= re.RegisterShader( "gfx/effects/sabers/teal_line" );
 	orangeSaberGlowShader		= re.RegisterShader( "gfx/effects/sabers/orange_glow" );
 	orangeSaberCoreShader		= re.RegisterShader( "gfx/effects/sabers/orange_line" );
 	yellowSaberGlowShader		= re.RegisterShader( "gfx/effects/sabers/yellow_glow" );
@@ -395,6 +399,11 @@ void UI_DoSaber( vec3_t origin, vec3_t dir, float length, float lengthMax, float
 			blade = purpleSaberCoreShader;
 			VectorSet( rgb, 0.9f, 0.2f, 1.0f );
 			break;
+		case SABER_TEAL:
+			glow = tealSaberGlowShader;
+			blade = tealSaberCoreShader;
+			VectorSet( rgb, 0.1f, 1.0f, 0.7f );
+			break;
 	}
 
 	// always add a light because sabers cast a nice glow before they slice you in half!!  or something...
@@ -479,6 +488,10 @@ saber_colors_t TranslateSaberColor( const char *name )
 	if ( !Q_stricmp( name, "purple" ) )
 	{
 		return SABER_PURPLE;
+	}
+	if ( !Q_stricmp( name, "teal" ) )
+	{
+		return SABER_TEAL;
 	}
 	if ( !Q_stricmp( name, "random" ) )
 	{
