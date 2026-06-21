@@ -10942,14 +10942,26 @@ stillDoSaber:
 	}
 	//For now, these two are using the old shield shader. This is just so that you
 	//can tell it apart from the JM/duel shaders, but it's still very obvious.
-	if (cent->currentState.forcePowersActive & (1 << FP_PROTECT))
+	if ((cent->currentState.forcePowersActive & (1 << FP_PROTECT)) && (cent->currentState.forcePowersActive & (1 << FP_ABSORB)))
+	{ //aborborb is represented by cyan.. JKFF: Now we want to show a cyan shell around those who have both Protect and Absorb active.
+		legs.shaderRGBA[0] = 0;
+		legs.shaderRGBA[1] = 255;
+		legs.shaderRGBA[2] = 255;
+		legs.shaderRGBA[3] = 254;
+
+		legs.renderfx &= ~RF_RGB_TINT;
+		legs.renderfx &= ~RF_FORCE_ENT_ALPHA;
+		legs.customShader = cgs.media.protectShader;
+
+		trap->R_AddRefEntityToScene(&legs);
+	} else if (cent->currentState.forcePowersActive & (1 << FP_PROTECT))
 	{ //aborb is represented by green..
 		refEntity_t prot;
 
 		memcpy(&prot, &legs, sizeof(prot));
 
-		prot.shaderRGBA[0] = 0;
-		prot.shaderRGBA[1] = 128;
+		prot.shaderRGBA[0] = 0; // JKFF: Yellow protect? Testing // Worked, reset to 0
+		prot.shaderRGBA[1] = 255;
 		prot.shaderRGBA[2] = 0;
 		prot.shaderRGBA[3] = 254;
 
@@ -10968,13 +10980,7 @@ stillDoSaber:
 		*/
 
 		trap->R_AddRefEntityToScene( &prot );
-	}
-	//if (cent->currentState.forcePowersActive & (1 << FP_ABSORB))
-	//Showing only when the power has been active (absorbed something) recently now, instead of always.
-	//AND
-	//always show if it is you with the absorb on
-	if ((cent->currentState.number == cg.predictedPlayerState.clientNum && (cg.predictedPlayerState.fd.forcePowersActive & (1<<FP_ABSORB))) ||
-		(cent->teamPowerEffectTime > cg.time && cent->teamPowerType == 3))
+	} else if (cent->currentState.forcePowersActive & (1 << FP_ABSORB))
 	{ //aborb is represented by blue..
 		legs.shaderRGBA[0] = 0;
 		legs.shaderRGBA[1] = 0;
