@@ -3322,8 +3322,11 @@ static void CG_PlayerAnimation( centity_t *cent, int *legsOld, int *legs, float 
 		*legsOld = *legs = *torsoOld = *torso = 0;
 		return;
 	}
-
-	if (!PM_RunningAnim(cent->currentState.legsAnim) &&
+	if (PM_WalkingAnim(cent->currentState.legsAnim))
+	{
+		speedScale = 1.5f; // JKFF: Multiplayer walking animation speed was too slow, so I increased it to 1.5x
+	}
+	else if (!PM_RunningAnim(cent->currentState.legsAnim) &&
 		!PM_WalkingAnim(cent->currentState.legsAnim))
 	{ //if legs are not in a walking/running anim then just animate at standard speed
 		speedScale = 1.0f;
@@ -3353,14 +3356,15 @@ static void CG_PlayerAnimation( centity_t *cent, int *legsOld, int *legs, float 
 
 	CG_RunLerpFrame( cent, ci, &cent->pe.legs, cent->currentState.legsFlip, cent->currentState.legsAnim, speedScale, qfalse);
 
-	if (!(cent->currentState.forcePowersActive & (1 << FP_RAGE)))
-	{ //don't affect torso anim speed unless raged
-		speedScale = 1.0f;
-	}
-	else
-	{
-		speedScale = 1.7f;
-	}
+	//if (!(cent->currentState.forcePowersActive & (1 << FP_RAGE)))
+	//{ //don't affect torso anim speed unless raged
+		//speedScale = 1.0f;
+	//}
+	//else
+	//{
+		//speedScale = 1.7f;
+	//}
+	// JKFF: Not affecting the torso animation speed unless raged literally makes the wobbly spine fix implemented earlier useless
 
 	*legsOld = cent->pe.legs.oldFrame;
 	*legs = cent->pe.legs.frame;
