@@ -11093,7 +11093,7 @@ stillDoSaber:
 
 		legs.renderfx &= ~RF_RGB_TINT;
 		legs.renderfx &= ~RF_FORCE_ENT_ALPHA;
-		legs.customShader = cgs.media.sightShell;
+		legs.customShader = cgs.media.protectShader; // JKFF 22-Jun-26: I want to set this to the protectShell instead of sightShell to mimic SP FP Sense
 
 		trap->R_AddRefEntityToScene( &legs );
 	}
