@@ -1530,10 +1530,11 @@ void ForceProtect( gentity_t *self )
 	{
 		WP_ForcePowerStop( self, FP_RAGE );
 	}
-	if (self->client->ps.fd.forcePowersActive & (1 << FP_ABSORB) )
-	{
-		WP_ForcePowerStop( self, FP_ABSORB );
-	}
+	// JKFF: I want to be able to trigger both Protect and Absorb in Multiplayer
+	// if (self->client->ps.fd.forcePowersActive & (1 << FP_ABSORB) )
+	// {
+		// WP_ForcePowerStop( self, FP_ABSORB );
+	// }
 
 	self->client->ps.forceAllowDeactivateTime = level.time + 1500;
 
@@ -1566,10 +1567,11 @@ void ForceAbsorb( gentity_t *self )
 	{
 		WP_ForcePowerStop( self, FP_RAGE );
 	}
-	if (self->client->ps.fd.forcePowersActive & (1 << FP_PROTECT) )
-	{
-		WP_ForcePowerStop( self, FP_PROTECT );
-	}
+	// JKFF: I want to be able to trigger both Protect and Absorb in Multiplayer
+	// if (self->client->ps.fd.forcePowersActive & (1 << FP_PROTECT) )
+	// {
+		// WP_ForcePowerStop( self, FP_PROTECT );
+	// }
 
 	self->client->ps.forceAllowDeactivateTime = level.time + 1500;
 
