@@ -9359,71 +9359,52 @@ void CG_Player( centity_t *cent ) {
 	memset( &torso, 0, sizeof(torso) );
 
 	//rww - force speed "trail" effect
+	// JKFF 22-Jun-26: Dynamic loop-based rendering for speed trails
 	if (!(cent->currentState.powerups & (1 << PW_SPEED)) || doAlpha || !cg_speedTrail.integer)
 	{
-		cent->frame_minus1_refreshed = 0;
-		cent->frame_minus2_refreshed = 0;
+		for (int i = 0; i < MAX_SPEED_TRAILS; i++) {
+			cent->speedTrailRefreshed[i] = qfalse;
+		}
 	}
-
-	if (cent->frame_minus1_refreshed ||
-		cent->frame_minus2_refreshed)
+	else
 	{
-		vec3_t			tDir;
-		int				distVelBase;
+		vec3_t tDir;
+		float distVelBase;
 
 		VectorCopy(cent->currentState.pos.trDelta, tDir);
-		distVelBase = SPEED_TRAIL_DISTANCE*(VectorNormalize(tDir)*0.004);
+		distVelBase = SPEED_TRAIL_DISTANCE * (VectorNormalize(tDir) * 0.004f);
 
-		if (cent->frame_minus1_refreshed)
+		for (int i = 0; i < MAX_SPEED_TRAILS; i++)
 		{
-			refEntity_t reframe_minus1 = legs;
-			reframe_minus1.renderfx |= RF_FORCE_ENT_ALPHA;
-			reframe_minus1.shaderRGBA[0] = legs.shaderRGBA[0];
-			reframe_minus1.shaderRGBA[1] = legs.shaderRGBA[1];
-			reframe_minus1.shaderRGBA[2] = legs.shaderRGBA[2];
-			reframe_minus1.shaderRGBA[3] = 100;
+			if (cent->speedTrailRefreshed[i])
+			{
+				refEntity_t reframe = legs;
+				reframe.renderfx |= RF_FORCE_ENT_ALPHA;
 
-			//rww - if the client gets a bad framerate we will only receive frame positions
-			//once per frame anyway, so we might end up with speed trails very spread out.
-			//in order to avoid that, we'll get the direction of the last trail from the player
-			//and place the trail refent a set distance from the player location this frame
-			VectorSubtract(cent->frame_minus1, legs.origin, tDir);
-			VectorNormalize(tDir);
+				// Calculate dynamic alpha (starts at 100, fades down to 20 for 5 trails)
+				int baseAlpha = 100;
+				int alphaStep = baseAlpha / MAX_SPEED_TRAILS;
+				reframe.shaderRGBA[3] = baseAlpha - (i * alphaStep);
 
-			cent->frame_minus1[0] = legs.origin[0]+tDir[0]*distVelBase;
-			cent->frame_minus1[1] = legs.origin[1]+tDir[1]*distVelBase;
-			cent->frame_minus1[2] = legs.origin[2]+tDir[2]*distVelBase;
+				// Apply the velocity-based offset to prevent trails from clumping
+				if (i == 0) {
+					VectorSubtract(cent->speedTrailPos[0], legs.origin, tDir);
+					VectorNormalize(tDir);
+					cent->speedTrailPos[0][0] = legs.origin[0] + tDir[0] * distVelBase;
+					cent->speedTrailPos[0][1] = legs.origin[1] + tDir[1] * distVelBase;
+					cent->speedTrailPos[0][2] = legs.origin[2] + tDir[2] * distVelBase;
+				}
+				else {
+					VectorSubtract(cent->speedTrailPos[i], cent->speedTrailPos[i - 1], tDir);
+					VectorNormalize(tDir);
+					cent->speedTrailPos[i][0] = cent->speedTrailPos[i - 1][0] + tDir[0] * distVelBase;
+					cent->speedTrailPos[i][1] = cent->speedTrailPos[i - 1][1] + tDir[1] * distVelBase;
+					cent->speedTrailPos[i][2] = cent->speedTrailPos[i - 1][2] + tDir[2] * distVelBase;
+				}
 
-			VectorCopy(cent->frame_minus1, reframe_minus1.origin);
-
-			//reframe_minus1.customShader = 2;
-
-			trap->R_AddRefEntityToScene(&reframe_minus1);
-		}
-
-		if (cent->frame_minus2_refreshed)
-		{
-			refEntity_t reframe_minus2 = legs;
-
-			reframe_minus2.renderfx |= RF_FORCE_ENT_ALPHA;
-			reframe_minus2.shaderRGBA[0] = legs.shaderRGBA[0];
-			reframe_minus2.shaderRGBA[1] = legs.shaderRGBA[1];
-			reframe_minus2.shaderRGBA[2] = legs.shaderRGBA[2];
-			reframe_minus2.shaderRGBA[3] = 50;
-
-			//Same as above but do it between trail points instead of the player and first trail entry
-			VectorSubtract(cent->frame_minus2, cent->frame_minus1, tDir);
-			VectorNormalize(tDir);
-
-			cent->frame_minus2[0] = cent->frame_minus1[0]+tDir[0]*distVelBase;
-			cent->frame_minus2[1] = cent->frame_minus1[1]+tDir[1]*distVelBase;
-			cent->frame_minus2[2] = cent->frame_minus1[2]+tDir[2]*distVelBase;
-
-			VectorCopy(cent->frame_minus2, reframe_minus2.origin);
-
-			//reframe_minus2.customShader = 2;
-
-			trap->R_AddRefEntityToScene(&reframe_minus2);
+				VectorCopy(cent->speedTrailPos[i], reframe.origin);
+				trap->R_AddRefEntityToScene(&reframe);
+			}
 		}
 	}
 
@@ -10810,23 +10791,23 @@ stillDoSaber:
 	}
 
 	if (!(cent->currentState.powerups & (1 << PW_CLOAKED)))
-	{ //don't add the normal model if cloaked
+	{ //don't add the normal model if cloaked // JKFF 22-Jun-26: This also has to be updated to reflect the new cg_local.h MAX_SPEED_TRAILS changes
 		CG_CheckThirdPersonAlpha( cent, &legs );
 		trap->R_AddRefEntityToScene(&legs);
 	}
 
-	//cent->frame_minus2 = cent->frame_minus1;
-	VectorCopy(cent->frame_minus1, cent->frame_minus2);
-
-	if (cent->frame_minus1_refreshed)
+	// JKFF: Shift the speed trail history buffer for the next frame
+	for (int i = MAX_SPEED_TRAILS - 1; i > 0; i--)
 	{
-		cent->frame_minus2_refreshed = 1;
+		VectorCopy(cent->speedTrailPos[i - 1], cent->speedTrailPos[i]);
+		if (cent->speedTrailRefreshed[i - 1]) {
+			cent->speedTrailRefreshed[i] = qtrue;
+		}
 	}
 
-	//cent->frame_minus1 = legs;
-	VectorCopy(legs.origin, cent->frame_minus1);
-
-	cent->frame_minus1_refreshed = 1;
+	// Save the current frame's position into slot 0
+	VectorCopy(legs.origin, cent->speedTrailPos[0]);
+	cent->speedTrailRefreshed[0] = qtrue;
 
 	if (!cent->frame_hold_refreshed && (cent->currentState.powerups & (1 << PW_SPEEDBURST)))
 	{

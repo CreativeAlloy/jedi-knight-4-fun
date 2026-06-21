@@ -1021,8 +1021,11 @@ void CG_KillCEntityInstances(void)
 
 		cent->boltInfo = 0;
 
-		cent->frame_minus1_refreshed = 0;
-		cent->frame_minus2_refreshed = 0;
+		// JKFF: Reset speed trail array
+		for (int i = 0; i < MAX_SPEED_TRAILS; i++) {
+			cent->speedTrailRefreshed[i] = qfalse;
+		}
+
 		cent->dustTrailTime = 0;
 		cent->ghoul2weapon = NULL;
 		//cent->torsoBolt = 0;

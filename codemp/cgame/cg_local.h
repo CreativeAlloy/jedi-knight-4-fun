@@ -412,14 +412,14 @@ typedef struct centity_s {
 	int				torsoBolt;
 
 	vec3_t			turAngles;
+	int				turretUpdateTime; // JKFF 22-Jun-26: Added specifically for cg_turret.c timer
 
-	vec3_t			frame_minus1;
-	vec3_t			frame_minus2;
+	// JKFF 22-Jun-26: Dynamic array for speed trails
+	#define MAX_SPEED_TRAILS 4
+	vec3_t			speedTrailPos[MAX_SPEED_TRAILS];
+	qboolean		speedTrailRefreshed[MAX_SPEED_TRAILS];
 
-	int				frame_minus1_refreshed;
-	int				frame_minus2_refreshed;
-
-	void			*frame_hold; //pointer to a ghoul2 instance
+	void* frame_hold; //pointer to a ghoul2 instance
 
 	int				frame_hold_time;
 	int				frame_hold_refreshed;
@@ -1888,9 +1888,9 @@ void CG_OutOfAmmoChange( int oldWeapon );	// should this be in pmove?
 void	CG_InitMarkPolys( void );
 void	CG_AddMarks( void );
 void	CG_ImpactMark( qhandle_t markShader,
-				    const vec3_t origin, const vec3_t dir,
+					const vec3_t origin, const vec3_t dir,
 					float orientation,
-				    float r, float g, float b, float a,
+					float r, float g, float b, float a,
 					qboolean alphaFade,
 					float radius, qboolean temporary );
 

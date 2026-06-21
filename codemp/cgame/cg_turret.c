@@ -250,12 +250,12 @@ void TurretClientRun(centity_t *ent)
 		CreepToPosition(idleAng, ent->turAngles);
 	}
 
-	if (cg.time < ent->frame_minus1_refreshed)
+	if (cg.time < ent->turretUpdateTime)
 	{
-		ent->frame_minus1_refreshed = cg.time;
+		ent->turretUpdateTime = cg.time;
 		return;
 	}
 
-	ent->frame_minus1_refreshed = cg.time;
+	ent->turretUpdateTime = cg.time;
 	trap->G2API_SetBoneAngles( ent->ghoul2, 0, "bone_hinge", ent->turAngles, BONE_ANGLES_REPLACE, NEGATIVE_Y, NEGATIVE_Z, NEGATIVE_X, NULL, 100, cg.time );
 }
