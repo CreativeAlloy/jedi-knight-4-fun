@@ -2959,8 +2959,8 @@ static void CG_SetLerpFrameAnimation( centity_t *cent, clientInfo_t *ci, lerpFra
 				beginFrame = GBAcFrame;
 			}
 
-			if (firstFrame > lastFrame || ci->torsoAnim == newAnimation)
-			{ //don't resume on backwards playing animations.. I guess.
+			if (firstFrame > lastFrame /* || ci->torsoAnim == newAnimation */) // JKFF: This might be the reason for the wobbly spine - why reset the torso animation if anything about it gets changed - even the speedScale?
+			{ //don't resume on backwards playing animations.. I guess. // JKFF: Wobbly spine permanently fixed. Rejoice!
 				beginFrame = -1;
 			}
 
