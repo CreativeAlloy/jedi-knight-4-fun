@@ -975,6 +975,17 @@ void Cmd_CompleteCfgName( char *args, int argNum ) {
 }
 
 /*
+===============
+Cmd_Dev_f
+
+JKFF: Global developer shortcut to instantly launch the test map
+===============
+*/
+static void Cmd_Dev_f(void) {
+	Cbuf_InsertText("devmap mp/ffa1\n");
+}
+
+/*
 ============
 Cmd_Init
 ============
@@ -991,5 +1002,8 @@ void Cmd_Init (void) {
 	Cmd_AddCommand( "vstr", Cmd_Vstr_f, "Execute the value of a cvar" );
 	Cmd_SetCommandCompletionFunc( "vstr", Cvar_CompleteCvarName );
 	Cmd_AddCommand( "wait", Cmd_Wait_f, "Pause command buffer execution" );
+
+	// JKFF: Register our global dev map shortcut
+	Cmd_AddCommand("dev", Cmd_Dev_f, "Launch the development test map" );
 }
 

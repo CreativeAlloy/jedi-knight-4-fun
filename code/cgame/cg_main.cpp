@@ -417,10 +417,10 @@ static cvarTable_t cvarTable[] = {
 	{ &cg_thirdPersonAngle, "cg_thirdPersonAngle", "0", 0 },
 	{ &cg_thirdPersonPitchOffset, "cg_thirdPersonPitchOffset", "0", 0 },
 	{ &cg_thirdPersonVertOffset, "cg_thirdPersonVertOffset", "16", 0},
-	{ &cg_thirdPersonCameraDamp, "cg_thirdPersonCameraDamp", "0.3", 0},
-	{ &cg_thirdPersonTargetDamp, "cg_thirdPersonTargetDamp", "0.5", 0},
+	{ &cg_thirdPersonCameraDamp, "cg_thirdPersonCameraDamp", "0.3", CVAR_ARCHIVE}, // JKFF: This is now meant to be saved, changed 0 to CVAR_ARCHIVE
+	{ &cg_thirdPersonTargetDamp, "cg_thirdPersonTargetDamp", "0.5", CVAR_ARCHIVE},
 
-	{ &cg_thirdPersonHorzOffset, "cg_thirdPersonHorzOffset", "0", 0},
+	{ &cg_thirdPersonHorzOffset, "cg_thirdPersonHorzOffset", "0", CVAR_ARCHIVE}, // JKFF: I am marking this as well for testing
 	{ &cg_thirdPersonAlpha, "cg_thirdPersonAlpha", "1.0", CVAR_ARCHIVE },
 	{ &cg_thirdPersonAutoAlpha,	"cg_thirdPersonAutoAlpha",	"0", 0 },
 	// NOTE: also declare this in UI_Init
@@ -453,7 +453,7 @@ static cvarTable_t cvarTable[] = {
 	{ &fx_expensivePhysics, "fx_expensivePhysics", "1", CVAR_ARCHIVE },
 	{ &cg_debugHealthBars,	"cg_debugHealthBars",	"0", CVAR_CHEAT },
 
-	{ &cg_smoothCamera, "cg_smoothCamera", "1", CVAR_ARCHIVE },
+	{ &cg_smoothCamera, "cg_smoothCamera", "1", CVAR_ARCHIVE }, // JKFF: Interesting
 	{ &cg_speedTrail, "cg_speedTrail", "1", CVAR_ARCHIVE },
 	{ &cg_fovViewmodel, "cg_fovViewmodel", "0", CVAR_ARCHIVE },
 	{ &cg_fovViewmodelAdjust, "cg_fovViewmodelAdjust", "1", CVAR_ARCHIVE },
