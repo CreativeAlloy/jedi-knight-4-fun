@@ -3318,30 +3318,43 @@ static void CG_PlayerAnimation( centity_t *cent, int *legsOld, int *legs, float 
 
 	clientNum = cent->currentState.clientNum;
 
-	if ( cg_noPlayerAnims.integer ) {
-		*legsOld = *legs = *torsoOld = *torso = 0;
-		return;
-	}
-	if (PM_WalkingAnim(cent->currentState.legsAnim))
+	/* JKFF 21-Jun-26: I am rewriting some of the logic to account for speed changes in combined conditions and to simplify it */
+
+	qboolean FP_HasRage = (cent->currentState.forcePowersActive & (1 << FP_RAGE)) ? qtrue : qfalse;
+	qboolean FP_HasSpeed = (cent->currentState.forcePowersActive & (1 << FP_SPEED)) ? qtrue : qfalse;
+	qboolean PM_IsWalking = PM_WalkingAnim(cent->currentState.legsAnim);
+	qboolean PM_IsRunning = PM_RunningAnim(cent->currentState.legsAnim);
+
+	// 1. COMBINED WALKING CONDITIONS (Checked first)
+	if (PM_IsWalking && FP_HasSpeed)
 	{
-		speedScale = 1.5f; // JKFF: Multiplayer walking animation speed was too slow, so I increased it to 1.5x
+		speedScale = 1.9f; // Walking + Force Speed active
 	}
-	else if (!PM_RunningAnim(cent->currentState.legsAnim) &&
-		!PM_WalkingAnim(cent->currentState.legsAnim))
-	{ //if legs are not in a walking/running anim then just animate at standard speed
-		speedScale = 1.0f;
-	}
-	else if (cent->currentState.forcePowersActive & (1 << FP_RAGE))
+	else if (PM_IsWalking && FP_HasRage)
 	{
-		speedScale = 1.3f;
+		speedScale = 1.7f; // Walking + Force Rage active
 	}
-	else if (cent->currentState.forcePowersActive & (1 << FP_SPEED))
+	else if (PM_IsWalking)
 	{
-		speedScale = 1.7f;
+		speedScale = 1.5f; // Standalone Walking (JKFF: Increased from 1.0x to 1.5x)
+	}
+
+	// 2. STANDALONE RUNNING/IDLE CONDITIONS
+	else if (!PM_IsRunning && !PM_IsWalking)
+	{
+		speedScale = 1.0f; // Static/Idle/Action animations run at normal speed
+	}
+	else if (PM_IsRunning && FP_HasSpeed)
+	{
+		speedScale = 1.7f; // Running + Force Speed active
+	}
+	else if (PM_IsRunning && FP_HasRage)
+	{
+		speedScale = 1.3f; // Running + Force Rage active
 	}
 	else
 	{
-		speedScale = 1.0f;
+		speedScale = 1.0f; // Standalone Running
 	}
 
 	if (cent->currentState.eType == ET_NPC)
