@@ -3258,9 +3258,9 @@ static void CG_RunLerpFrame( centity_t *cent, clientInfo_t *ci, lerpFrame_t *lf,
 	{
 		lf->lastForcedFrame = -1;
 
-		if ( (newAnimation != lf->animationNumber || cent->currentState.brokenLimbs != ci->brokenLimbs || lf->lastFlip != flipState || !lf->animation) || (CG_FirstAnimFrame(lf, torsoOnly, speedScale)) )
+		if ((newAnimation != lf->animationNumber || cent->currentState.brokenLimbs != ci->brokenLimbs || lf->lastFlip != flipState || !lf->animation) || (CG_FirstAnimFrame(lf, torsoOnly, speedScale)) ) // JKFF: Temporarily removed '|| (CG_FirstAnimFrame(lf, torsoOnly, speedScale)'
 		{
-			CG_SetLerpFrameAnimation( cent, ci, lf, newAnimation, speedScale, torsoOnly, flipState);
+			CG_SetLerpFrameAnimation( cent, ci, lf, newAnimation, speedScale, torsoOnly, flipState); // JKFF: Something about this logic is causing the spine wobble issue... For some reason changing the speed restarts all animations' current frame to 0, or something equivalent - and we get the wobble...
 		}
 	}
 
@@ -3380,8 +3380,6 @@ static void CG_PlayerAnimation( centity_t *cent, int *legsOld, int *legs, float 
 		*torsoBackLerp = cent->pe.torso.backlerp;
 	}
 }
-
-
 
 
 /*
