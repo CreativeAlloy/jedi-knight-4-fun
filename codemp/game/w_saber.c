@@ -7122,7 +7122,7 @@ void thrownSaberTouch (gentity_t *saberent, gentity_t *other, trace_t *trace)
 	saberent->speed = 0;
 }
 
-#define SABER_MAX_THROW_DISTANCE 700
+#define SABER_MAX_THROW_DISTANCE 100 // JKFF: Testing 100 in lieu of 700
 
 void saberFirstThrown(gentity_t *saberent)
 {
@@ -7209,11 +7209,14 @@ void saberFirstThrown(gentity_t *saberent)
 	VectorSubtract(saberOwn->client->ps.origin, saberent->r.currentOrigin, vSub);
 	vLen = VectorLength(vSub);
 
+#if 0
 	if (vLen >= (SABER_MAX_THROW_DISTANCE*saberOwn->client->ps.fd.forcePowerLevel[FP_SABERTHROW]))
 	{
 		thrownSaberTouch(saberent, saberent, NULL);
 		goto runMin;
 	}
+#endif
+	// JKFF 22-Jun-26: I removed this part because my new logic utilizes Singleplayer-ish gameplay mechanics instead of having sabers fly off into the sunset when you throw them
 
 	if (saberOwn->client->ps.fd.forcePowerLevel[FP_SABERTHROW] >= FORCE_LEVEL_2 &&
 		saberent->speed < level.time)
@@ -7257,6 +7260,27 @@ void saberFirstThrown(gentity_t *saberent)
 		else
 		{
 			saberent->speed = level.time + 400;
+		}
+	}
+
+	// JKFF: Clamp the saber to the max range sphere after steering is applied
+	// JKFF 22-Jun-26 Note: This makes the saber go wobbly (like FP_SABERTHROW 3 in Singleplayer) so I want to fix that later, otherwise the logic works
+	VectorSubtract(saberent->r.currentOrigin, saberOwn->client->ps.origin, vSub); // Now points AWAY from player
+	vLen = VectorLength(vSub);
+	float maxRange = (SABER_MAX_THROW_DISTANCE * saberOwn->client->ps.fd.forcePowerLevel[FP_SABERTHROW]);
+
+	if (vLen > maxRange)
+	{
+		VectorNormalize(vSub);
+		// Force the saber's base position to stay exactly at the maximum range limit
+		VectorMA(saberOwn->client->ps.origin, maxRange, vSub, saberent->r.currentOrigin);
+		VectorCopy(saberent->r.currentOrigin, saberent->s.pos.trBase);
+
+		// Strip away any outward velocity, but keep lateral velocity so it can still steer around the edge
+		float outwardVel = DotProduct(saberent->s.pos.trDelta, vSub);
+		if (outwardVel > 0)
+		{
+			VectorMA(saberent->s.pos.trDelta, -outwardVel, vSub, saberent->s.pos.trDelta);
 		}
 	}
 
