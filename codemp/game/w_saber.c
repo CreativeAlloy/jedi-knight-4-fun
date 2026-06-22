@@ -34,7 +34,7 @@ extern void G_TestLine(vec3_t start, vec3_t end, int color, int time);
 #define Clamp(min, max, val) ((val) < (min) ? (min) : ((val) > (max) ? (max) : (val))) // JKFF: Adding the clamp macro here
 
 int FP_SaberSpinSound[3] = { 0, 0, 0 }; // JKFF 22-Jun-26: Level 1-3 spin sounds
-int FP_SaberSpinSpeed[3] = { 400, 800, 1400 }; // JKFF 22-Jun-26: Level 1-3 spin speeds
+int FP_SaberSpinSpeed[3] = { 500, 800, 1400 }; // JKFF 22-Jun-26: Level 1-3 spin speeds
 
 //would be cleaner if these were renamed to BG_ and proto'd in a header.
 qboolean PM_SaberInTransition( int move );
@@ -7136,7 +7136,8 @@ void thrownSaberTouch (gentity_t *saberent, gentity_t *other, trace_t *trace)
 	saberent->speed = 0;
 }
 
-#define SABER_MAX_THROW_DISTANCE 100 // JKFF: Testing 100 in lieu of 700
+#define SABER_MAX_THROW_DISTANCE 210 // JKFF 25-Jun-26: New value
+#define HIGH_SABER_MAX_THROW_DISTANCE 250 // JKFF 22-Jun-26: This is the new max throw distance for Force Saber Throw levels 2 and 3
 
 void saberFirstThrown(gentity_t *saberent)
 {
@@ -7231,6 +7232,7 @@ void saberFirstThrown(gentity_t *saberent)
 	}
 #endif
 	// JKFF 22-Jun-26: I removed this part because my new logic utilizes Singleplayer-ish gameplay mechanics instead of having sabers fly off into the sunset when you throw them
+	// JKFF: Furthermore I decided to make the max throw distance different for each FP_SABERTHROW level
 
 	if (saberOwn->client->ps.fd.forcePowerLevel[FP_SABERTHROW] >= FORCE_LEVEL_2 &&
 		saberent->speed < level.time)
@@ -7269,25 +7271,49 @@ void saberFirstThrown(gentity_t *saberent)
 
 		if (saberOwn->client->ps.fd.forcePowerLevel[FP_SABERTHROW] >= FORCE_LEVEL_3)
 		{ //we'll treat them to a quicker update rate if their throw rank is high enough
-			saberent->speed = level.time + 100;
+			saberent->speed = level.time + 50; // JKFF 22-Jun-26: Reduced from 100 to 50 for a more responsive and less wobbly feel I hope
 		}
 		else
 		{
-			saberent->speed = level.time + 400;
+			saberent->speed = level.time + 100; // JKFF 22-Jun-26: Reduced from 400 to 100 for a more responsive and less wobbly feel I hope
 		}
 	}
 
 	// JKFF: Clamp the saber to the max range sphere after steering is applied
-	// JKFF 22-Jun-26 Note: This makes the saber go wobbly (like FP_SABERTHROW 3 in Singleplayer) so I want to fix that later, otherwise the logic works
-	VectorSubtract(saberent->r.currentOrigin, saberOwn->client->ps.origin, vSub); // Now points AWAY from player
-	vLen = VectorLength(vSub);
-	float maxRange = (SABER_MAX_THROW_DISTANCE * saberOwn->client->ps.fd.forcePowerLevel[FP_SABERTHROW]);
+	vec3_t playerEyeOrg;
+	VectorCopy(saberOwn->client->ps.origin, playerEyeOrg);
+	playerEyeOrg[2] += saberOwn->client->ps.viewheight; // Center the sphere at eye level
 
-	if (vLen > maxRange)
+	VectorSubtract(saberent->r.currentOrigin, playerEyeOrg, vSub); // Now points AWAY from eyes
+	vLen = VectorLength(vSub);
+
+	// JKFF: Calculate max range based on Force level
+	float maxRange = SABER_MAX_THROW_DISTANCE;
+	int FP_ThrowLevel = saberOwn->client->ps.fd.forcePowerLevel[FP_SABERTHROW];
+
+	if (FP_ThrowLevel >= FORCE_LEVEL_2)
 	{
+		maxRange = HIGH_SABER_MAX_THROW_DISTANCE;
+	}
+	else if (FP_ThrowLevel == FORCE_LEVEL_1)
+	{
+		maxRange = SABER_MAX_THROW_DISTANCE;
+	}
+
+	if (vLen >= maxRange)
+	{
+		// JKFF: If Level 1, instantly return when hitting max range (Vanilla behavior)
+		if (FP_ThrowLevel < FORCE_LEVEL_2)
+		{
+			thrownSaberTouch(saberent, saberent, NULL);
+			goto runMin;
+		}
+
+		// Keep the normal hovering/clamping code here for Level 2 and 3
 		VectorNormalize(vSub);
-		// Force the saber's base position to stay exactly at the maximum range limit
-		VectorMA(saberOwn->client->ps.origin, maxRange, vSub, saberent->r.currentOrigin);
+
+		// Force the saber's base position to stay exactly at the maximum range limit relative to your eyes
+		VectorMA(playerEyeOrg, maxRange, vSub, saberent->r.currentOrigin);
 		VectorCopy(saberent->r.currentOrigin, saberent->s.pos.trBase);
 
 		// Strip away any outward velocity, but keep lateral velocity so it can still steer around the edge
