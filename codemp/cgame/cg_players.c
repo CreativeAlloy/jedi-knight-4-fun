@@ -10167,14 +10167,14 @@ stillDoSaber:
 
 								if (tagBolt == -1)
 								{
-									assert(0);
+									// assert(0);
 								}
 								break;
 							}
 
 							if (tagBolt == -1)
 							{
-								assert(0);
+								// assert(0); // JKFF 22-Jun-26: This assert crashed the game upon throwing a saber staff when only the first blade was active - since it wasn't critical I removed the assert while debugging
 								break;
 							}
 						}
