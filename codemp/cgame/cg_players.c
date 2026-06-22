@@ -2813,6 +2813,7 @@ CG_SetLerpFrameAnimation
 */
 qboolean BG_SaberStanceAnim( int anim );
 qboolean PM_RunningAnim( int anim );
+qboolean PM_RunningBackAnim( int anim );
 static void CG_SetLerpFrameAnimation( centity_t *cent, clientInfo_t *ci, lerpFrame_t *lf, int newAnimation, float animSpeedMult, qboolean torsoOnly, qboolean flipState) {
 	animation_t	*anim;
 	float animSpeed;
@@ -3324,6 +3325,7 @@ static void CG_PlayerAnimation( centity_t *cent, int *legsOld, int *legs, float 
 	qboolean FP_HasSpeed = (cent->currentState.forcePowersActive & (1 << FP_SPEED)) ? qtrue : qfalse;
 	qboolean PM_IsWalking = PM_WalkingAnim(cent->currentState.legsAnim);
 	qboolean PM_IsRunning = PM_RunningAnim(cent->currentState.legsAnim);
+	qboolean PM_IsRunningBack = PM_RunningBackAnim(cent->currentState.legsAnim);
 
 	// 1. COMBINED WALKING CONDITIONS (Checked first)
 	if (PM_IsWalking && FP_HasSpeed)
@@ -3332,18 +3334,35 @@ static void CG_PlayerAnimation( centity_t *cent, int *legsOld, int *legs, float 
 	}
 	else if (PM_IsWalking && FP_HasRage)
 	{
-		speedScale = 1.7f; // Walking + Force Rage active
+		speedScale = 1.95f; // Walking + Force Rage active
 	}
 	else if (PM_IsWalking)
 	{
 		speedScale = 1.5f; // Standalone Walking (JKFF: Increased from 1.0x to 1.5x)
 	}
 
+	// 1.5. COMBINED RUNNING BACK CONDITIONS (Checked second)
+	else if (PM_IsRunningBack && FP_HasSpeed)
+	{
+		speedScale = 2.3f; // Running Back + Force Speed active
+	}
+	else if (PM_IsRunningBack && FP_HasRage)
+	{
+		speedScale = 1.75f; // Running Back + Force Rage active
+	}
+	else if (PM_IsRunningBack)
+	{
+		speedScale = 1.35f; // Standalone Running Back (JKFF: Increased from 1.0x to 1.35x)
+	}
+
 	// 2. STANDALONE RUNNING/IDLE CONDITIONS
-	else if (!PM_IsRunning && !PM_IsWalking)
+#if 1
+	else if (!PM_IsRunning && !PM_IsWalking && !PM_IsRunningBack)
 	{
 		speedScale = 1.0f; // Static/Idle/Action animations run at normal speed
 	}
+#endif
+	// JKFF: I tested commenting this out for something
 	else if (PM_IsRunning && FP_HasSpeed)
 	{
 		speedScale = 1.7f; // Running + Force Speed active

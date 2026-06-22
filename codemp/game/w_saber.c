@@ -7136,8 +7136,8 @@ void thrownSaberTouch (gentity_t *saberent, gentity_t *other, trace_t *trace)
 	saberent->speed = 0;
 }
 
-#define SABER_MAX_THROW_DISTANCE 210 // JKFF 25-Jun-26: New value
-#define HIGH_SABER_MAX_THROW_DISTANCE 250 // JKFF 22-Jun-26: This is the new max throw distance for Force Saber Throw levels 2 and 3
+#define SABER_MAX_THROW_DISTANCE 220 // JKFF 25-Jun-26: New value
+#define HIGH_SABER_MAX_THROW_DISTANCE 300 // JKFF 22-Jun-26: This is the new max throw distance for Force Saber Throw levels 2 and 3
 
 void saberFirstThrown(gentity_t *saberent)
 {

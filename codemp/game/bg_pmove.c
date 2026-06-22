@@ -4603,14 +4603,24 @@ qboolean PM_RunningAnim( int anim )
 	case BOTH_RUN2:
 	case BOTH_RUN_STAFF:
 	case BOTH_RUN_DUAL:
-	case BOTH_RUNBACK1:
-	case BOTH_RUNBACK2:
-	case BOTH_RUNBACK_STAFF:
-	case BOTH_RUNBACK_DUAL:
 	case BOTH_RUN1START:			//# Start into full run1
 	case BOTH_RUN1STOP:			//# Stop from full run1
 	case BOTH_RUNSTRAFE_LEFT1:	//# Sidestep left: should loop
 	case BOTH_RUNSTRAFE_RIGHT1:	//# Sidestep right: should loop
+		return qtrue;
+		break;
+	}
+	return qfalse;
+}
+
+qboolean PM_RunningBackAnim(int anim)
+{
+	switch (anim)
+	{
+	case BOTH_RUNBACK1:
+	case BOTH_RUNBACK2:
+	case BOTH_RUNBACK_STAFF:
+	case BOTH_RUNBACK_DUAL:
 		return qtrue;
 		break;
 	}
@@ -5319,7 +5329,7 @@ static void PM_Footsteps( void ) {
 
 		bobmove = 0.5;	// ducked characters bob much faster
 
-		if ( ( (PM_RunningAnim( pm->ps->legsAnim )&&VectorLengthSquared(pm->ps->velocity)>=40000/*200*200*/) || PM_CanRollFromSoulCal( pm->ps ) ) &&
+		if ( ( (PM_RunningAnim( pm->ps->legsAnim )&&VectorLengthSquared(pm->ps->velocity)>=40000/*200*200*/) || (PM_RunningBackAnim( pm->ps->legsAnim )&&VectorLengthSquared(pm->ps->velocity)>=40000) || PM_CanRollFromSoulCal( pm->ps ) ) &&
 			!BG_InRoll(pm->ps, pm->ps->legsAnim) )
 		{//roll!
 			rolled = PM_TryRoll();

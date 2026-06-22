@@ -2633,6 +2633,7 @@ int PM_KickMoveForConditions(void)
 
 qboolean BG_InSlopeAnim( int anim );
 qboolean PM_RunningAnim( int anim );
+qboolean PM_RunningBackAnim( int anim );
 
 qboolean PM_SaberMoveOkayForKata( void )
 {
@@ -3034,6 +3035,7 @@ void PM_WeaponLightsaber(void)
 					  || pm->ps->torsoAnim == BOTH_SABERPULL//not already attacking
 					  || pm->ps->torsoAnim == BOTH_STAND1//not already attacking
 					  || PM_RunningAnim( pm->ps->torsoAnim ) //not already attacking
+					  || PM_RunningBackAnim( pm->ps->torsoAnim )//not already attacking
 					  || PM_WalkingAnim( pm->ps->torsoAnim ) //not already attacking
 					  || PM_JumpingAnim( pm->ps->torsoAnim )//not already attacking
 					  || PM_SwimmingAnim( pm->ps->torsoAnim ))//not already attacking

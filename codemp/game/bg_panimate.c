@@ -2755,6 +2755,7 @@ PM_SetAnimFinal
 -------------------------
 */
 qboolean PM_RunningAnim( int anim );
+qboolean PM_RunningBackAnim( int anim );
 qboolean PM_WalkingAnim( int anim );
 
 void BG_SetAnimFinal(playerState_t *ps, animation_t *animations,
@@ -2861,7 +2862,8 @@ setAnimLegs:
 			}
 
 			if (PM_RunningAnim(anim) ||
-				PM_WalkingAnim(anim)) //these guys are ok, they don't actually reference pm
+				PM_WalkingAnim(anim) ||
+				PM_RunningBackAnim(anim)) //these guys are ok, they don't actually reference pm
 			{
 				if (ps->fd.forcePowersActive & (1 << FP_RAGE))
 				{
