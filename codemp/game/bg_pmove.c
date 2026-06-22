@@ -9485,7 +9485,7 @@ static QINLINE void PM_CmdForSaberMoves(usercmd_t *ucmd)
 	{
 		int aLen = PM_AnimLength(0, BOTH_JUMPATTACK6);
 
-		ucmd->forwardmove = ucmd->rightmove = ucmd->upmove = 0;
+		// ucmd->forwardmove = ucmd->rightmove = ucmd->upmove = 0; // JKFF 22-Jun-26: Let the player control the movement
 
 		if ( pm->ps->legsAnim == BOTH_JUMPATTACK6 )
 		{ //dual stance attack
@@ -9588,11 +9588,11 @@ static QINLINE void PM_CmdForSaberMoves(usercmd_t *ucmd)
 
 		if ( pm->ps->groundEntityNum == ENTITYNUM_NONE )
 		{//can only turn when your feet hit the ground
-			if (PM_AdjustAnglesForDualJumpAttack(pm->ps, ucmd))
-			{
-				PM_SetPMViewAngle(pm->ps, pm->ps->viewangles, ucmd);
-			}
-		}
+			//if (PM_AdjustAnglesForDualJumpAttack(pm->ps, ucmd))
+			//{
+				//PM_SetPMViewAngle(pm->ps, pm->ps->viewangles, ucmd);
+			//}
+		} // JKFF 22-Jun-26: Let the player control the view angles while in the air
 		//rwwFIXMEFIXME: Bother with bbox resizing like sp?
 	}
 	//STAFF BACK+JUMP+ATTACK
@@ -10084,6 +10084,7 @@ extern qboolean BG_FighterUpdate(Vehicle_t *pVeh, const usercmd_t *pUcmd, vec3_t
 
 void PM_MoveForKata(usercmd_t *ucmd)
 {
+	// JKFF 22-Jun-26: Restoring Singleplayer functionality of being able to move during certain special Katas with Dual Sabers and Staffs
 	if ( pm->ps->legsAnim == BOTH_A7_SOULCAL
 		&& pm->ps->saberMove == LS_STAFF_SOULCAL )
 	{//forward spinning staff attack
@@ -10092,7 +10093,7 @@ void PM_MoveForKata(usercmd_t *ucmd)
 		if ( PM_CanRollFromSoulCal( pm->ps ) )
 		{
 			ucmd->upmove = -127;
-			ucmd->rightmove = 0;
+			// ucmd->rightmove = 0;
 			if (ucmd->forwardmove < 0)
 			{
 				ucmd->forwardmove = 0;
@@ -10100,7 +10101,7 @@ void PM_MoveForKata(usercmd_t *ucmd)
 		}
 		else
 		{
-			ucmd->rightmove = 0;
+			// ucmd->rightmove = 0;
 			//FIXME: don't slide off people/obstacles?
 			if ( pm->ps->legsTimer >= 2750 )
 			{//not at end
@@ -10128,7 +10129,7 @@ void PM_MoveForKata(usercmd_t *ucmd)
 	}
 	else if (pm->ps->legsAnim == BOTH_A2_SPECIAL)
 	{ //medium kata
-		pm->cmd.rightmove = 0;
+		// pm->cmd.rightmove = 0;
 		pm->cmd.upmove = 0;
 		if (pm->ps->legsTimer < 2700 && pm->ps->legsTimer > 2300)
 		{
@@ -10145,7 +10146,7 @@ void PM_MoveForKata(usercmd_t *ucmd)
 	}
 	else if (pm->ps->legsAnim == BOTH_A3_SPECIAL)
 	{ //strong kata
-		pm->cmd.rightmove = 0;
+		// pm->cmd.rightmove = 0;
 		pm->cmd.upmove = 0;
 		if (pm->ps->legsTimer < 1700 && pm->ps->legsTimer > 1000)
 		{
@@ -10159,7 +10160,7 @@ void PM_MoveForKata(usercmd_t *ucmd)
 	else
 	{
 		pm->cmd.forwardmove = 0;
-		pm->cmd.rightmove = 0;
+		// pm->cmd.rightmove = 0;
 		pm->cmd.upmove = 0;
 	}
 }
@@ -10388,7 +10389,7 @@ void PmoveSingle (pmove_t *pmove) {
 
 	if ( pm->ps->saberMove == LS_A_LUNGE )
 	{//can't move during lunge
-		pm->cmd.rightmove = pm->cmd.upmove = 0;
+		// pm->cmd.rightmove = pm->cmd.upmove = 0; // JKFF 22-Jun-26: Correction - you can move while in a lunge
 		if ( pm->ps->legsTimer > 500 )
 		{
 			pm->cmd.forwardmove = 127;
