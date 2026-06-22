@@ -3328,7 +3328,7 @@ static void CG_PlayerAnimation( centity_t *cent, int *legsOld, int *legs, float 
 	// 1. COMBINED WALKING CONDITIONS (Checked first)
 	if (PM_IsWalking && FP_HasSpeed)
 	{
-		speedScale = 1.9f; // Walking + Force Speed active
+		speedScale = 2.55f; // Walking + Force Speed active
 	}
 	else if (PM_IsWalking && FP_HasRage)
 	{
