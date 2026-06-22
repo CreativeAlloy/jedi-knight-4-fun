@@ -1103,7 +1103,7 @@ void ForceHeal( gentity_t *self )
 
 	if (self->client->ps.fd.forcePowerLevel[FP_HEAL] == FORCE_LEVEL_3)
 	{
-		self->health += 25; //This was 50, but that angered the Balance God.
+		self->health += 40; //This was 50, but that angered the Balance God. // JKFF 22-Jun-26: I am far more terrifying; these numbers were absurd. 40-30-20 is what I offer in lieu of 25-10-5, take it and like it
 
 		if (self->health > self->client->ps.stats[STAT_MAX_HEALTH])
 		{
@@ -1113,7 +1113,7 @@ void ForceHeal( gentity_t *self )
 	}
 	else if (self->client->ps.fd.forcePowerLevel[FP_HEAL] == FORCE_LEVEL_2)
 	{
-		self->health += 10;
+		self->health += 30;
 
 		if (self->health > self->client->ps.stats[STAT_MAX_HEALTH])
 		{
@@ -1123,7 +1123,7 @@ void ForceHeal( gentity_t *self )
 	}
 	else
 	{
-		self->health += 5;
+		self->health += 20;
 
 		if (self->health > self->client->ps.stats[STAT_MAX_HEALTH])
 		{
@@ -2163,7 +2163,7 @@ int ForceShootDrain( gentity_t *self )
 
 	self->client->ps.activeForcePass = self->client->ps.fd.forcePowerLevel[FP_DRAIN] + FORCE_LEVEL_3;
 
-	BG_ForcePowerDrain( &self->client->ps, FP_DRAIN, 5 ); //used to be 1, but this did, too, anger the God of Balance.
+	BG_ForcePowerDrain(&self->client->ps, FP_DRAIN, 3); //used to be 1, but this did, too, anger the God of Balance. // JKFF 22-Jun-26: Switched from 5 to 3 as the God of Balance is a wimp
 
 	self->client->ps.fd.forcePowerRegenDebounceTime = level.time + 500;
 
@@ -4339,18 +4339,7 @@ static void WP_ForcePowerRun( gentity_t *self, forcePowers_t forcePower, usercmd
 		break;
 	case FP_SABERTHROW:
 		break;
-	case FP_PROTECT:
-		if (self->client->ps.fd.forcePowerDebounce[forcePower] < level.time)
-		{
-			BG_ForcePowerDrain( &self->client->ps, forcePower, 1 );
-			if (self->client->ps.fd.forcePower < 1)
-			{
-				WP_ForcePowerStop(self, forcePower);
-			}
-
-			self->client->ps.fd.forcePowerDebounce[forcePower] = level.time + 300;
-		}
-		break;
+	case FP_PROTECT: // JKFF 22-Jun-26: Balance the drain of Force when using Force Protect and Absorb together
 	case FP_ABSORB:
 		if (self->client->ps.fd.forcePowerDebounce[forcePower] < level.time)
 		{
@@ -4360,7 +4349,7 @@ static void WP_ForcePowerRun( gentity_t *self, forcePowers_t forcePower, usercmd
 				WP_ForcePowerStop(self, forcePower);
 			}
 
-			self->client->ps.fd.forcePowerDebounce[forcePower] = level.time + 600;
+			self->client->ps.fd.forcePowerDebounce[forcePower] = level.time + 2000; // JKFF 22-Jun-26: Now it should cost 1 Force every 2 seconds instead of 1 Force every second
 		}
 		break;
 	default:

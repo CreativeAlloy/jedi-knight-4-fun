@@ -10383,7 +10383,7 @@ void PmoveSingle (pmove_t *pmove) {
 		pm->ps->legsAnim == BOTH_FORCELANDRIGHT1 ||
 		pm->ps->legsAnim == BOTH_FORCELANDLEFT1)
 	{ //can't move while in a force land
-		stiffenedUp = qtrue;
+		stiffenedUp = qfalse; // JKFF 22-Jun-26: Correction - you can move while in a force land
 	}
 
 	if ( pm->ps->saberMove == LS_A_LUNGE )
