@@ -31,7 +31,10 @@ extern bot_state_t *botstates[MAX_CLIENTS];
 extern qboolean InFront( vec3_t spot, vec3_t from, vec3_t fromAngles, float threshHold );
 extern void G_TestLine(vec3_t start, vec3_t end, int color, int time);
 
-int saberSpinSound = 0;
+#define Clamp(min, max, val) ((val) < (min) ? (min) : ((val) > (max) ? (max) : (val))) // JKFF: Adding the clamp macro here
+
+int FP_SaberSpinSound[3] = { 0, 0, 0 }; // JKFF 22-Jun-26: Level 1-3 spin sounds
+int FP_SaberSpinSpeed[3] = { 400, 800, 1400 }; // JKFF 22-Jun-26: Level 1-3 spin speeds
 
 //would be cleaner if these were renamed to BG_ and proto'd in a header.
 qboolean PM_SaberInTransition( int move );
@@ -647,7 +650,9 @@ void WP_SaberInitBladeData( gentity_t *ent )
 	saberent->genericValue5 = 0;
 	saberent->nextthink = level.time + 50;
 
-	saberSpinSound = G_SoundIndex("sound/weapons/saber/saberspin.wav");
+	FP_SaberSpinSound[0] = G_SoundIndex("sound/weapons/saber/saberspin3.wav"); // JKFF: Level 1 spin sound and they are reversed in the assets for some reason
+	FP_SaberSpinSound[1] = G_SoundIndex("sound/weapons/saber/saberspin2.wav"); // JKFF: Level 2 spin sound
+	FP_SaberSpinSound[2] = G_SoundIndex("sound/weapons/saber/saberspin1.wav"); // JKFF: Level 3 spin sound
 }
 
 #define LOOK_DEFAULT_SPEED	0.15f
@@ -6477,7 +6482,11 @@ void saberReactivate(gentity_t *saberent, gentity_t *saberOwner)
 
 	saberent->s.apos.trType = TR_LINEAR;
 	saberent->s.apos.trDelta[0] = 0;
-	saberent->s.apos.trDelta[1] = 800;
+
+	// JKFF 22-Jun-26: Scale the spin speed dynamically based on Force Saber Throw level
+	int FP_ThrowLevel = saberOwner->client->ps.fd.forcePowerLevel[FP_SABERTHROW];
+	saberent->s.apos.trDelta[1] = FP_SaberSpinSpeed[Clamp(0, 2, FP_ThrowLevel - 1)]; // JKFF 22-Jun-26: This dynamic code is much better than nested ifs
+
 	saberent->s.apos.trDelta[2] = 0;
 
 	saberent->s.pos.trType = TR_LINEAR;
@@ -6499,7 +6508,7 @@ void saberReactivate(gentity_t *saberent, gentity_t *saberOwner)
 	trap->LinkEntity((sharedEntity_t *)saberent);
 }
 
-#define SABER_RETRIEVE_DELAY 3000 //3 seconds for now. This will leave you nice and open if you lose your saber.
+#define SABER_RETRIEVE_DELAY 1000 //3 seconds for now. This will leave you nice and open if you lose your saber. // JKFF 22-Jun-26: Fuck you for that; I am reducing that to 1 second because this always felt like a bullshit mechanic
 
 void saberKnockDown(gentity_t *saberent, gentity_t *saberOwner, gentity_t *other)
 {
@@ -7091,6 +7100,9 @@ void thrownSaberTouch (gentity_t *saberent, gentity_t *other, trace_t *trace)
 {
 	gentity_t *hitEnt = other;
 
+	// JKFF 22-Jun-26: Define the owner pointer locally so we can read their Force Throw level
+	gentity_t* saberOwn = &g_entities[saberent->r.ownerNum];
+
 	if (other && other->s.number == saberent->r.ownerNum)
 	{
 		return;
@@ -7099,8 +7111,10 @@ void thrownSaberTouch (gentity_t *saberent, gentity_t *other, trace_t *trace)
 	saberent->s.pos.trTime = level.time;
 
 	saberent->s.apos.trType = TR_LINEAR;
-	saberent->s.apos.trDelta[0] = 0;
-	saberent->s.apos.trDelta[1] = 800;
+	// JKFF 22-Jun-26: Scale the spin speed dynamically on initial throw
+	int FP_ThrowLevel = saberOwn->client->ps.fd.forcePowerLevel[FP_SABERTHROW];
+	saberent->s.apos.trDelta[1] = FP_SaberSpinSpeed[Clamp(0, 2, FP_ThrowLevel - 1)]; // JKFF 22-Jun-26: This dynamic code is much better than nested ifs
+
 	saberent->s.apos.trDelta[2] = 0;
 
 	VectorCopy(saberent->r.currentOrigin, saberent->s.pos.trBase);
@@ -8668,7 +8682,11 @@ nextStep:
 
 				saberent->s.apos.trType = TR_LINEAR;
 				saberent->s.apos.trDelta[0] = 0;
-				saberent->s.apos.trDelta[1] = 800;
+
+				// JKFF 22-Jun-26: Scale the spin speed dynamically on initial throw
+				int FP_ThrowLevel = self->client->ps.fd.forcePowerLevel[FP_SABERTHROW];
+				saberent->s.apos.trDelta[1] = FP_SaberSpinSpeed[Clamp(0, 2, FP_ThrowLevel - 1)]; // JKFF 22-Jun-26: This dynamic code is much better than nested ifs
+
 				saberent->s.apos.trDelta[2] = 0;
 
 				saberent->s.pos.trType = TR_LINEAR;
@@ -8709,14 +8727,17 @@ nextStep:
 				VectorScale(dir, 400, saberent->s.pos.trDelta );
 				saberent->s.pos.trTime = level.time;
 
-				if ( self->client->saber[0].spinSound )
+				if (self->client->saber[0].spinSound)
 				{
 					saberent->s.loopSound = self->client->saber[0].spinSound;
 				}
 				else
 				{
-					saberent->s.loopSound = saberSpinSound;
+					// JKFF 22-Jun-26: Dynamic loop sound based on Force Throw level
+					int FP_ThrowLevel = self->client->ps.fd.forcePowerLevel[FP_SABERTHROW];
+					saberent->s.loopSound = FP_SaberSpinSound[Clamp(0, 2, FP_ThrowLevel - 1)];
 				}
+
 				saberent->s.loopIsSoundset = qfalse;
 
 				self->client->ps.saberDidThrowTime = level.time;
