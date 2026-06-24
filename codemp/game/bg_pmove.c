@@ -78,6 +78,8 @@ float	pm_spectatorfriction = 5.0f;
 
 int		c_pmove = 0;
 
+int		desiredAnim = -1;
+
 float forceSpeedLevels[4] =
 {
 	1, //rank 0?
@@ -5402,7 +5404,7 @@ static void PM_Footsteps( void ) {
 	}
 	else
 	{
-		int desiredAnim = -1;
+		desiredAnim = -1;
 
 		if ((pm->ps->legsAnim == BOTH_FORCELAND1 ||
 			pm->ps->legsAnim == BOTH_FORCELANDBACK1 ||
@@ -5571,11 +5573,11 @@ static void PM_Footsteps( void ) {
 					case SS_STAFF:
 						if ( pm->ps->saberHolstered > 1 )
 						{
-							desiredAnim = BOTH_WALKBACK1;
+							desiredAnim = BOTH_WALKBACK1; // JKFF 24-Jun-26: BOTH_WALKBACK2 is broken, trying BOTH_WALKBACK1 instead
 						}
 						else if ( pm->ps->saberHolstered )
 						{
-							desiredAnim = BOTH_WALKBACK2;
+							desiredAnim = BOTH_WALKBACK1;
 						}
 						else
 						{
@@ -5589,7 +5591,7 @@ static void PM_Footsteps( void ) {
 						}
 						else if ( pm->ps->saberHolstered )
 						{
-							desiredAnim = BOTH_WALKBACK2;
+							desiredAnim = BOTH_WALKBACK1;
 						}
 						else
 						{
@@ -5603,7 +5605,7 @@ static void PM_Footsteps( void ) {
 						}
 						else
 						{
-							desiredAnim = BOTH_WALKBACK2;
+							desiredAnim = BOTH_WALKBACK1;
 						}
 						break;
 					}
@@ -5662,7 +5664,7 @@ static void PM_Footsteps( void ) {
 						}
 						else
 						{
-							desiredAnim = BOTH_WALK2;
+							desiredAnim = BOTH_WALK2; // JKFF 24-Jun-26: Something about this animation feels choppy when moving forward
 						}
 						break;
 					}

@@ -3378,7 +3378,7 @@ static void CG_PlayerAnimation( centity_t *cent, int *legsOld, int *legs, float 
 	}
 
 	// JKFF 24-Jun-26: Calculate Torso Speed Scale independently of locomotion (legs) scale to prevent attacks from speeding up during movement
-	if (cent->currentState.torsoAnim == cent->currentState.legsAnim)
+	if ((cent->currentState.torsoAnim == cent->currentState.legsAnim) || cent->currentState.torsoAnim == BOTH_WALK2) // ???
 	{
 		torsoSpeedScale = legsSpeedScale;
 	}

@@ -1082,7 +1082,7 @@ typedef enum //# animNumber_e
 	BOTH_STAND5TOSIT3,		//# transition from stand 5 to sit 3
 	BOTH_STAND1TOSTAND5,	//# Transition from stand1 to stand5
 	BOTH_STAND5TOSTAND1,	//# Transition from stand5 to stand1
-	BOTH_STAND5TOAIM,		//# Transition of Kye aiming his gun at Desann (cin #9)
+	BOTH_STAND5TOAIM,		//# Transition of Kyle aiming his gun at Desann (cin #9)
 	BOTH_STAND5STARTLEDLOOKLEFT,	//# Kyle turning to watch the bridge drop (cin #9)
 	BOTH_STARTLEDLOOKLEFTTOSTAND5,	//# Kyle returning to stand 5 from watching the bridge drop (cin #9)
 	BOTH_STAND5TOSTAND8,	//# Transition from stand5 to stand8
