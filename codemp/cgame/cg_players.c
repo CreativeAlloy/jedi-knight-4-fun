@@ -3315,11 +3315,12 @@ static void CG_PlayerAnimation( centity_t *cent, int *legsOld, int *legs, float 
 						int *torsoOld, int *torso, float *torsoBackLerp ) {
 	clientInfo_t	*ci;
 	int				clientNum;
-	float			speedScale;
+	float			legsSpeedScale;
+	float			torsoSpeedScale;
 
 	clientNum = cent->currentState.clientNum;
 
-	/* JKFF 21-Jun-26: I am rewriting some of the logic to account for speed changes in combined conditions and to simplify it */
+	/* JKFF: I am rewriting some of the logic to account for speed changes in combined conditions and to simplify it */
 
 	qboolean FP_HasRage = (cent->currentState.forcePowersActive & (1 << FP_RAGE)) ? qtrue : qfalse;
 	qboolean FP_HasSpeed = (cent->currentState.forcePowersActive & (1 << FP_SPEED)) ? qtrue : qfalse;
@@ -3330,50 +3331,74 @@ static void CG_PlayerAnimation( centity_t *cent, int *legsOld, int *legs, float 
 	// 1. COMBINED WALKING CONDITIONS (Checked first)
 	if (PM_IsWalking && FP_HasSpeed)
 	{
-		speedScale = 2.55f; // Walking + Force Speed active
+		legsSpeedScale = 2.55f; // Walking + Force Speed active
 	}
 	else if (PM_IsWalking && FP_HasRage)
 	{
-		speedScale = 1.95f; // Walking + Force Rage active
+		legsSpeedScale = 1.95f; // Walking + Force Rage active
 	}
 	else if (PM_IsWalking)
 	{
-		speedScale = 1.5f; // Standalone Walking (JKFF: Increased from 1.0x to 1.5x)
+		legsSpeedScale = 1.5f; // Standalone Walking (JKFF: Increased from 1.0x to 1.5x)
 	}
 
 	// 1.5. COMBINED RUNNING BACK CONDITIONS (Checked second)
 	else if (PM_IsRunningBack && FP_HasSpeed)
 	{
-		speedScale = 2.3f; // Running Back + Force Speed active
+		legsSpeedScale = 2.3f; // Running Back + Force Speed active
 	}
 	else if (PM_IsRunningBack && FP_HasRage)
 	{
-		speedScale = 1.75f; // Running Back + Force Rage active
+		legsSpeedScale = 1.75f; // Running Back + Force Rage active
 	}
 	else if (PM_IsRunningBack)
 	{
-		speedScale = 1.35f; // Standalone Running Back (JKFF: Increased from 1.0x to 1.35x)
+		legsSpeedScale = 1.35f; // Standalone Running Back (JKFF: Increased from 1.0x to 1.35x)
 	}
 
 	// 2. STANDALONE RUNNING/IDLE CONDITIONS
 #if 1
 	else if (!PM_IsRunning && !PM_IsWalking && !PM_IsRunningBack)
 	{
-		speedScale = 1.0f; // Static/Idle/Action animations run at normal speed
+		legsSpeedScale = 1.0f; // Static/Idle/Action animations run at normal speed
 	}
 #endif
 	// JKFF: I tested commenting this out for something
 	else if (PM_IsRunning && FP_HasSpeed)
 	{
-		speedScale = 1.7f; // Running + Force Speed active
+		legsSpeedScale = 1.7f; // Running + Force Speed active
 	}
 	else if (PM_IsRunning && FP_HasRage)
 	{
-		speedScale = 1.3f; // Running + Force Rage active
+		legsSpeedScale = 1.3f; // Running + Force Rage active
 	}
 	else
 	{
-		speedScale = 1.0f; // Standalone Running
+		legsSpeedScale = 1.0f; // Standalone Running
+	}
+
+	// JKFF 24-Jun-26: Calculate Torso Speed Scale independently of locomotion (legs) scale to prevent attacks from speeding up during movement
+	if (cent->currentState.torsoAnim == cent->currentState.legsAnim)
+	{
+		torsoSpeedScale = legsSpeedScale;
+	}
+	else
+	{
+#if 0
+		if (FP_HasSpeed)
+		{
+			torsoSpeedScale = 1.7f; // Torso Attack Speed + Force Speed active
+		}
+		else if (FP_HasRage)
+		{
+			torsoSpeedScale = 1.3f; // Torso Attack Speed + Force Rage active
+		}
+		else
+		{
+			torsoSpeedScale = 1.0f; // Standalone Torso Attack Speed
+		}
+#endif
+		torsoSpeedScale = 1.0f; // JKFF 24-Jun-26: Torso animations run at normal speed regardless of Force Powers & Current Movement
 	}
 
 	if (cent->currentState.eType == ET_NPC)
@@ -3386,7 +3411,7 @@ static void CG_PlayerAnimation( centity_t *cent, int *legsOld, int *legs, float 
 		ci = &cgs.clientinfo[ clientNum ];
 	}
 
-	CG_RunLerpFrame( cent, ci, &cent->pe.legs, cent->currentState.legsFlip, cent->currentState.legsAnim, speedScale, qfalse);
+	CG_RunLerpFrame( cent, ci, &cent->pe.legs, cent->currentState.legsFlip, cent->currentState.legsAnim, legsSpeedScale, qfalse);
 
 	//if (!(cent->currentState.forcePowersActive & (1 << FP_RAGE)))
 	//{ //don't affect torso anim speed unless raged
@@ -3402,10 +3427,10 @@ static void CG_PlayerAnimation( centity_t *cent, int *legsOld, int *legs, float 
 	*legs = cent->pe.legs.frame;
 	*legsBackLerp = cent->pe.legs.backlerp;
 
-	// If this is not a vehicle, you may lerm the frame (since vehicles never have a torso anim). -AReis
+	// If this is not a vehicle, animate the torso using the separate torsoSpeedScale
 	if ( cent->currentState.NPC_class != CLASS_VEHICLE )
 	{
-		CG_RunLerpFrame( cent, ci, &cent->pe.torso, cent->currentState.torsoFlip, cent->currentState.torsoAnim, speedScale, qtrue );
+		CG_RunLerpFrame( cent, ci, &cent->pe.torso, cent->currentState.torsoFlip, cent->currentState.torsoAnim, torsoSpeedScale, qtrue );
 
 		*torsoOld = cent->pe.torso.oldFrame;
 		*torso = cent->pe.torso.frame;
