@@ -5201,7 +5201,8 @@ static void PM_Footsteps( void ) {
 		|| (pm->ps->legsAnim) == BOTH_BUTTON_HOLD
 		|| (pm->ps->legsAnim) == BOTH_BUTTON_RELEASE
 		|| PM_LandingAnim( (pm->ps->legsAnim) )
-		|| PM_PainAnim( (pm->ps->legsAnim) ))
+		|| PM_PainAnim( (pm->ps->legsAnim) )
+		|| (pm->ps->torsoAnim) == BOTH_A1_SPECIAL )
 	{//legs are in a saber anim, and not spinning, be sure to override it
 		setAnimFlags |= SETANIM_FLAG_OVERRIDE;
 	}
@@ -5214,7 +5215,7 @@ static void PM_Footsteps( void ) {
 		+  pm->ps->velocity[1] * pm->ps->velocity[1] );
 
 	// JKFF 24-Jun-26: Only force the legs to copy the spinning torso if the player is stationary
-	if (pm->ps->saberMove == LS_SPINATTACK && !pm->cmd.forwardmove && !pm->cmd.rightmove)
+	if ((pm->ps->saberMove == LS_SPINATTACK || pm->ps->torsoAnim == BOTH_A1_SPECIAL) && !pm->cmd.forwardmove && !pm->cmd.rightmove)
 	{
 		PM_ContinueLegsAnim( pm->ps->torsoAnim );
 	}
@@ -10177,7 +10178,7 @@ void PM_MoveForKata(usercmd_t *ucmd)
 			pm->cmd.forwardmove = 0;
 		}
 	}
-	else if (pm->ps->legsAnim == BOTH_A1_SPECIAL)
+	else if (pm->ps->torsoAnim == BOTH_A1_SPECIAL) // JKFF 24-Jun-26: use torsoAnim instead of legsAnim
 	{ //fast kata
 		// JKFF 24-Jun-26: Do nothing, don't restrict movement during this kata, let the player control it (apart from jumping)
 		pm->cmd.upmove = 0;
