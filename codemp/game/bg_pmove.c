@@ -9208,7 +9208,19 @@ void BG_G2PlayerAngles(void *ghoul2, int motionBolt, entityState_t *cent, int ti
 	else if (cent->weapon == WP_SABER &&
 		BG_SaberInSpecial(cent->saberMove))
 	{
-		VectorClear(velocity);
+		// JKFF 24-Jun-26: If we are performing our twirls or the Fast Kata, and we are moving,
+		// do NOT clear the velocity. This lets the native leg-rotation system align our feet with our movement direction.
+		if (cent->saberMove == LS_SPINATTACK || cent->saberMove == LS_SPINATTACK_DUAL || (cent->torsoAnim) == BOTH_A1_SPECIAL)
+		{
+			if (VectorLengthSquared(cent->pos.trDelta) <= 100)
+			{
+				VectorClear(velocity);
+			}
+		}
+		else
+		{
+			VectorClear(velocity);
+		}
 	}
 
 	speed = VectorNormalize( velocity );
