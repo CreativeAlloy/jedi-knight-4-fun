@@ -5519,6 +5519,7 @@ static void PM_Footsteps( void ) {
 						}
 						else
 						{
+#if 0
 							if (pm->ps->fd.forcePowersActive & (1<<FP_SPEED))
 							{
 								desiredAnim = BOTH_RUN1;
@@ -5527,6 +5528,8 @@ static void PM_Footsteps( void ) {
 							{
 								desiredAnim = BOTH_RUN_STAFF;
 							}
+#endif
+							desiredAnim = BOTH_RUN_STAFF;
 						}
 						break;
 					case SS_DUAL:
