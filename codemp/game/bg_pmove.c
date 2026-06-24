@@ -5580,15 +5580,22 @@ static void PM_Footsteps( void ) {
 				{
 					// JKFF 24-Jun-26: Check saberAnimLevelBase instead of saberAnimLevel to prevent 
 					// deactivated blade states from bypassing the correct Staff/Dual walkback animations
+
+					/*
+					Quick tutorial for what these saberHolstered values mean:
+					0 = both blades ignited
+					1 = one blade ignited
+					2 = both blades completely turned OFF (holstered)
+					*/
 					if (pm->ps->fd.saberAnimLevelBase == SS_STAFF)
 					{
-						if (pm->ps->saberHolstered > 1)
+						if (pm->ps->saberHolstered == 2)
 						{
-							desiredAnim = BOTH_WALKBACK1;
+							desiredAnim = BOTH_WALKBACK_DUAL; // JKFF 24-Jun-26: WALKBACK2 is broken
 						}
-						else if (pm->ps->saberHolstered)
+						else if (pm->ps->saberHolstered == 1)
 						{
-							desiredAnim = BOTH_WALKBACK2;
+							desiredAnim = BOTH_WALKBACK_DUAL; // !
 						}
 						else
 						{
@@ -5597,30 +5604,35 @@ static void PM_Footsteps( void ) {
 					}
 					else if (pm->ps->fd.saberAnimLevelBase == SS_DUAL)
 					{
-						if (pm->ps->saberHolstered > 1)
+						if (pm->ps->saberHolstered == 2) // JKFF: Apparently that means completely turned off
 						{
-							desiredAnim = BOTH_WALKBACK1;
+							desiredAnim = BOTH_WALKBACK_DUAL;
 						}
-						else if (pm->ps->saberHolstered)
+						else if (pm->ps->saberHolstered == 1)
 						{
-							desiredAnim = BOTH_WALKBACK2;
+							desiredAnim = BOTH_WALKBACK_DUAL; // ! // JKFF: I suppose this means having 1 blade ignited
+						}
+						else
+						{
+							desiredAnim = BOTH_WALKBACK_DUAL; // JKFF: Both blades ignited
+						}
+					}
+					else // default (single sabers)
+					{
+						if (pm->ps->saberHolstered == 1) // JKFF: One blade ignited
+						{
+							desiredAnim = BOTH_WALKBACK_DUAL; // !
 						}
 						else
 						{
 							desiredAnim = BOTH_WALKBACK_DUAL;
 						}
 					}
-					else // default (single sabers)
-					{
-						if (pm->ps->saberHolstered)
-						{
-							desiredAnim = BOTH_WALKBACK2;
-						}
-						else
-						{
-							desiredAnim = BOTH_WALKBACK1;
-						}
-					}
+
+					/* JKFF 24-Jun-26: I am using WALKBACK_DUAL in many places
+					because it is the only animation that works properly when walking backwards
+					and it looks significantly better anyway.*/
+
 				}
 			}
 			else

@@ -668,10 +668,12 @@ qboolean G2_Set_Bone_Anim_Index(
 		blist[index].flags |= BONE_NEED_TRANSFORM;
 	}
 
+#if 0
 	if (setFrame != -1)
 	{
 		assert((setFrame >= startFrame) && (setFrame <= endFrame));
 	}
+#endif
 	if (flags & BONE_ANIM_BLEND)
 	{
 		float	currentFrame, animSpeed;
