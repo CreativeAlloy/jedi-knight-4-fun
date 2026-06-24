@@ -5570,81 +5570,84 @@ static void PM_Footsteps( void ) {
 		else
 		{
 			bobmove = 0.2f;	// walking bobs slow
-			if ( pm->ps->pm_flags & PMF_BACKWARDS_RUN )
+			if (pm->ps->pm_flags & PMF_BACKWARDS_RUN)
 			{
-				if ( BG_AreRunWalkAnimsFixed() && pm->ps->weapon != WP_SABER )
+				if (BG_AreRunWalkAnimsFixed() && pm->ps->weapon != WP_SABER)
 				{
 					desiredAnim = BOTH_WALKBACK1;
 				}
 				else
 				{
-					switch (pm->ps->fd.saberAnimLevel)
+					// JKFF 24-Jun-26: Check saberAnimLevelBase instead of saberAnimLevel to prevent 
+					// deactivated blade states from bypassing the correct Staff/Dual walkback animations
+					if (pm->ps->fd.saberAnimLevelBase == SS_STAFF)
 					{
-					case SS_STAFF:
-						if ( pm->ps->saberHolstered > 1 )
-						{
-							desiredAnim = BOTH_WALKBACK1; // JKFF 24-Jun-26: BOTH_WALKBACK2 is broken, trying BOTH_WALKBACK1 instead
-						}
-						else if ( pm->ps->saberHolstered )
+						if (pm->ps->saberHolstered > 1)
 						{
 							desiredAnim = BOTH_WALKBACK1;
+						}
+						else if (pm->ps->saberHolstered)
+						{
+							desiredAnim = BOTH_WALKBACK2;
 						}
 						else
 						{
 							desiredAnim = BOTH_WALKBACK_STAFF;
 						}
-						break;
-					case SS_DUAL:
-						if ( pm->ps->saberHolstered > 1 )
+					}
+					else if (pm->ps->fd.saberAnimLevelBase == SS_DUAL)
+					{
+						if (pm->ps->saberHolstered > 1)
 						{
 							desiredAnim = BOTH_WALKBACK1;
 						}
-						else if ( pm->ps->saberHolstered )
+						else if (pm->ps->saberHolstered)
 						{
-							desiredAnim = BOTH_WALKBACK1;
+							desiredAnim = BOTH_WALKBACK2;
 						}
 						else
 						{
 							desiredAnim = BOTH_WALKBACK_DUAL;
 						}
-						break;
-					default:
-						if ( pm->ps->saberHolstered )
+					}
+					else // default (single sabers)
+					{
+						if (pm->ps->saberHolstered)
 						{
-							desiredAnim = BOTH_WALKBACK1;
+							desiredAnim = BOTH_WALKBACK2;
 						}
 						else
 						{
 							desiredAnim = BOTH_WALKBACK1;
 						}
-						break;
 					}
 				}
 			}
 			else
 			{
-				if ( pm->ps->weapon == WP_MELEE )
+				if (pm->ps->weapon == WP_MELEE)
 				{
 					desiredAnim = BOTH_WALK1;
 				}
-				else if ( BG_SabersOff( pm->ps ) )
+				else if (BG_SabersOff(pm->ps))
 				{
 					desiredAnim = BOTH_WALK1;
 				}
-				else if ( BG_AreRunWalkAnimsFixed() && pm->ps->weapon != WP_SABER )
+				else if (BG_AreRunWalkAnimsFixed() && pm->ps->weapon != WP_SABER)
 				{
 					desiredAnim = BOTH_WALK1;
 				}
 				else
 				{
-					switch (pm->ps->fd.saberAnimLevel)
+					// JKFF 24-Jun-26: Check saberAnimLevelBase instead of saberAnimLevel to prevent 
+					// deactivated blade states from bypassing the correct Staff/Dual walking animations
+					if (pm->ps->fd.saberAnimLevelBase == SS_STAFF)
 					{
-					case SS_STAFF:
-						if ( pm->ps->saberHolstered > 1 )
+						if (pm->ps->saberHolstered > 1)
 						{
 							desiredAnim = BOTH_WALK1;
 						}
-						else if ( pm->ps->saberHolstered )
+						else if (pm->ps->saberHolstered)
 						{
 							desiredAnim = BOTH_WALK2;
 						}
@@ -5652,13 +5655,14 @@ static void PM_Footsteps( void ) {
 						{
 							desiredAnim = BOTH_WALK_STAFF;
 						}
-						break;
-					case SS_DUAL:
-						if ( pm->ps->saberHolstered > 1 )
+					}
+					else if (pm->ps->fd.saberAnimLevelBase == SS_DUAL)
+					{
+						if (pm->ps->saberHolstered > 1)
 						{
 							desiredAnim = BOTH_WALK1;
 						}
-						else if ( pm->ps->saberHolstered )
+						else if (pm->ps->saberHolstered)
 						{
 							desiredAnim = BOTH_WALK2;
 						}
@@ -5666,9 +5670,10 @@ static void PM_Footsteps( void ) {
 						{
 							desiredAnim = BOTH_WALK_DUAL;
 						}
-						break;
-					default:
-						if ( pm->ps->saberHolstered )
+					}
+					else // default (single sabers)
+					{
+						if (pm->ps->saberHolstered)
 						{
 							desiredAnim = BOTH_WALK1;
 						}
@@ -5676,7 +5681,6 @@ static void PM_Footsteps( void ) {
 						{
 							desiredAnim = BOTH_WALK2; // JKFF 24-Jun-26: Something about this animation feels choppy when moving forward
 						}
-						break;
 					}
 				}
 			}
