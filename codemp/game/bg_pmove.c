@@ -5506,8 +5506,10 @@ static void PM_Footsteps( void ) {
 				}
 				else
 				{
+#if 0
 					// JKFF 24-Jun-26: Temporary debug log to confirm stance shifting
 					Com_Printf("Current Saber Stance: %d | Saber Holstered State: %d\n", pm->ps->fd.saberAnimLevel, pm->ps->saberHolstered);
+#endif
 
 					// JKFF 24-Jun-26: Rewritten from a switch checking saberAnimLevel (which falls back when blades are off)
 					// to an if-else chain checking saberAnimLevelBase to correctly catch the 1-blade-on states
