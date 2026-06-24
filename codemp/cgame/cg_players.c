@@ -2956,12 +2956,22 @@ static void CG_SetLerpFrameAnimation( centity_t *cent, clientInfo_t *ci, lerpFra
 			trap->G2API_GetBoneFrame(cent->ghoul2, "model_root", cg.time, &GBAcFrame, NULL, 0);
 
 			if ((cent->currentState.torsoAnim) == (cent->currentState.legsAnim) && GBAcFrame >= anim->firstFrame && GBAcFrame <= (anim->firstFrame + anim->numFrames))
-			{ //if the legs are already running this anim, pick up on the exact same frame to avoid the "wobbly spine" problem.
+			{ //if the legs are already running this anim, pick up on the exact same frame to avoid the "wobbly spine" problem
 				beginFrame = GBAcFrame;
-			}
 
+				// JKFF 24-Jun-26: Float-to-Int truncation causes a subtle desync (i.e. wobble) when copying the frame
+				// We must reset the legs to this exact integer frame right now so they are mathematically locked to the torso
+				trap->G2API_SetBoneAnim(cent->ghoul2, 0, "model_root", firstFrame, lastFrame, flags, animSpeed, cg.time, beginFrame, blendTime);
+			}
+#if 0
 			if (firstFrame > lastFrame /* || ci->torsoAnim == newAnimation */) // JKFF: This might be the reason for the wobbly spine - why reset the torso animation if anything about it gets changed - even the speedScale?
 			{ //don't resume on backwards playing animations.. I guess. // JKFF: Wobbly spine permanently fixed. Rejoice!
+				beginFrame = -1;
+			}
+#endif
+			//	JKFF 24-Jun-26: I commented out the code above due to the comment inside the parentheses; I prefer clean code to be fed to the compiler
+			if (firstFrame > lastFrame)
+			{
 				beginFrame = -1;
 			}
 
@@ -3000,6 +3010,12 @@ static void CG_SetLerpFrameAnimation( centity_t *cent, clientInfo_t *ci, lerpFra
 				if ((beginFrame < firstFrame) || (beginFrame > lastFrame))
 				{ //out of range, don't use it then.
 					beginFrame = oldBeginFrame;
+				}
+				else
+				{
+					// JKFF 24-Jun-26: Float-to-Int truncation causes a subtle desync when copying the frame.
+					// We must reset the torso to this exact integer frame right now so they are mathematically locked to the legs
+					trap->G2API_SetBoneAnim(cent->ghoul2, 0, "lower_lumbar", firstFrame, lastFrame, flags, animSpeed, cg.time, beginFrame, blendTime);
 				}
 			}
 

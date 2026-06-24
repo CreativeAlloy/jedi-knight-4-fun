@@ -5515,7 +5515,7 @@ static void PM_Footsteps( void ) {
 						}
 						else if ( pm->ps->saberHolstered == 1 )
 						{//1 blade on
-							desiredAnim = BOTH_RUN2;
+							desiredAnim = BOTH_RUN2; // JKFF 24-Jun-26: Why does this never get triggered?
 						}
 						else
 						{
