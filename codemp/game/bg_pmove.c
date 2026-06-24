@@ -5213,7 +5213,8 @@ static void PM_Footsteps( void ) {
 	pm->xyspeed = sqrt( pm->ps->velocity[0] * pm->ps->velocity[0]
 		+  pm->ps->velocity[1] * pm->ps->velocity[1] );
 
-	if (pm->ps->saberMove == LS_SPINATTACK)
+	// JKFF 24-Jun-26: Only force the legs to copy the spinning torso if the player is stationary
+	if (pm->ps->saberMove == LS_SPINATTACK && !pm->cmd.forwardmove && !pm->cmd.rightmove)
 	{
 		PM_ContinueLegsAnim( pm->ps->torsoAnim );
 	}
@@ -5318,10 +5319,11 @@ static void PM_Footsteps( void ) {
 		return;
 	}
 
-	if (pm->ps->saberMove == LS_SPINATTACK)
+	// JKFF 24-Jun-26: Only force the legs to copy the spinning torso if the player is stationary
+	if ((pm->ps->saberMove == LS_SPINATTACK || pm->ps->legsAnim == BOTH_A1_SPECIAL) && !pm->cmd.forwardmove && !pm->cmd.rightmove)
 	{
 		bobmove = 0.2f;
-		PM_ContinueLegsAnim( pm->ps->torsoAnim );
+		PM_ContinueLegsAnim(pm->ps->torsoAnim);
 	}
 	else if ( pm->ps->pm_flags & PMF_DUCKED )
 	{
@@ -8931,6 +8933,12 @@ static void BG_G2ClientSpineAngles( void *ghoul2, int motionBolt, vec3_t cent_le
 	{
 		doCorr = qtrue;
 	}
+	// JKFF 24-Jun-26: Force spine correction to align the torso forward if moving during twirls
+	if ((cent->saberMove == LS_SPINATTACK || cent->saberMove == LS_SPINATTACK_DUAL)
+		&& VectorLengthSquared(cent->pos.trDelta) > 100)
+	{
+		doCorr = qtrue;
+	}
 #else
 	if ( ((!BG_FlippingAnim( cent->legsAnim )
 		&& !BG_SpinningSaberAnim( cent->legsAnim )
@@ -9637,6 +9645,7 @@ static QINLINE void PM_CmdForSaberMoves(usercmd_t *ucmd)
 		ucmd->forwardmove = ucmd->rightmove = ucmd->upmove = 0;
 	}
 	//STAFF/DUAL SPIN ATTACK
+#if 0
 	else if (pm->ps->saberMove == LS_SPINATTACK ||
 		pm->ps->saberMove == LS_SPINATTACK_DUAL)
 	{
@@ -9644,6 +9653,8 @@ static QINLINE void PM_CmdForSaberMoves(usercmd_t *ucmd)
 		//lock their viewangles during these attacks.
 		PM_SetPMViewAngle(pm->ps, pm->ps->viewangles, ucmd);
 	}
+#endif
+	// JKFF 24-Jun-26: Don't lock the view angles, as a matter of fact let the player control their movements as well
 }
 
 //constrain him based on the angles of his vehicle and the caps
@@ -10094,7 +10105,6 @@ extern qboolean BG_FighterUpdate(Vehicle_t *pVeh, const usercmd_t *pUcmd, vec3_t
 
 void PM_MoveForKata(usercmd_t *ucmd)
 {
-	// JKFF 22-Jun-26: Restoring Singleplayer functionality of being able to move during certain special Katas with Dual Sabers and Staffs
 	if ( pm->ps->legsAnim == BOTH_A7_SOULCAL
 		&& pm->ps->saberMove == LS_STAFF_SOULCAL )
 	{//forward spinning staff attack
@@ -10103,7 +10113,7 @@ void PM_MoveForKata(usercmd_t *ucmd)
 		if ( PM_CanRollFromSoulCal( pm->ps ) )
 		{
 			ucmd->upmove = -127;
-			// ucmd->rightmove = 0;
+			ucmd->rightmove = 0;
 			if (ucmd->forwardmove < 0)
 			{
 				ucmd->forwardmove = 0;
@@ -10111,7 +10121,7 @@ void PM_MoveForKata(usercmd_t *ucmd)
 		}
 		else
 		{
-			// ucmd->rightmove = 0;
+			ucmd->rightmove = 0;
 			//FIXME: don't slide off people/obstacles?
 			if ( pm->ps->legsTimer >= 2750 )
 			{//not at end
@@ -10139,7 +10149,7 @@ void PM_MoveForKata(usercmd_t *ucmd)
 	}
 	else if (pm->ps->legsAnim == BOTH_A2_SPECIAL)
 	{ //medium kata
-		// pm->cmd.rightmove = 0;
+		pm->cmd.rightmove = 0;
 		pm->cmd.upmove = 0;
 		if (pm->ps->legsTimer < 2700 && pm->ps->legsTimer > 2300)
 		{
@@ -10156,7 +10166,7 @@ void PM_MoveForKata(usercmd_t *ucmd)
 	}
 	else if (pm->ps->legsAnim == BOTH_A3_SPECIAL)
 	{ //strong kata
-		// pm->cmd.rightmove = 0;
+		pm->cmd.rightmove = 0;
 		pm->cmd.upmove = 0;
 		if (pm->ps->legsTimer < 1700 && pm->ps->legsTimer > 1000)
 		{
@@ -10167,10 +10177,15 @@ void PM_MoveForKata(usercmd_t *ucmd)
 			pm->cmd.forwardmove = 0;
 		}
 	}
+	else if (pm->ps->legsAnim == BOTH_A1_SPECIAL)
+	{ //fast kata
+		// JKFF 24-Jun-26: Do nothing, don't restrict movement during this kata, let the player control it (apart from jumping)
+		pm->cmd.upmove = 0;
+	}
 	else
 	{
 		pm->cmd.forwardmove = 0;
-		// pm->cmd.rightmove = 0;
+		pm->cmd.rightmove = 0;
 		pm->cmd.upmove = 0;
 	}
 }
