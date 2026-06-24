@@ -110,7 +110,7 @@ int forcePowerNeeded[NUM_FORCE_POWER_LEVELS][NUM_FORCE_POWERS] =
 		//NUM_FORCE_POWERS
 	},
 	{
-		65,//FP_HEAL,//instant //was 25, but that was way too little
+		60,//FP_HEAL,//instant // JKFF 24-Jun-26: Changed to 60 from 65
 		10,//FP_LEVITATION,//hold/duration
 		50,//FP_SPEED,//duration
 		20,//FP_PUSH,//hold/duration
@@ -119,8 +119,8 @@ int forcePowerNeeded[NUM_FORCE_POWER_LEVELS][NUM_FORCE_POWERS] =
 		30,//FP_GRIP,//hold/duration
 		1,//FP_LIGHTNING,//hold/duration
 		50,//FP_RAGE,//duration
-		50,//FP_PROTECT,//duration
-		50,//FP_ABSORB,//duration
+		30,//FP_PROTECT,//duration // JKFF 24-Jun-26: Changed from 50 to 30
+		30,//FP_ABSORB,//duration // JKFF 24-Jun-26: Changed from 50 to 30
 		50,//FP_TEAM_HEAL,//instant
 		50,//FP_TEAM_FORCE,//instant
 		20,//FP_DRAIN,//hold/duration
@@ -131,7 +131,7 @@ int forcePowerNeeded[NUM_FORCE_POWER_LEVELS][NUM_FORCE_POWERS] =
 		//NUM_FORCE_POWERS
 	},
 	{
-		60,//FP_HEAL,//instant
+		55,//FP_HEAL,//instant // JKFF 24-Jun-26: Reduced to 55 from 60
 		10,//FP_LEVITATION,//hold/duration
 		50,//FP_SPEED,//duration
 		20,//FP_PUSH,//hold/duration
@@ -152,7 +152,7 @@ int forcePowerNeeded[NUM_FORCE_POWER_LEVELS][NUM_FORCE_POWERS] =
 		//NUM_FORCE_POWERS
 	},
 	{
-		50,//FP_HEAL,//instant //You get 5 points of health.. for 50 force points!
+		50,//FP_HEAL,//instant
 		10,//FP_LEVITATION,//hold/duration
 		50,//FP_SPEED,//duration
 		20,//FP_PUSH,//hold/duration
@@ -10427,10 +10427,21 @@ void PmoveSingle (pmove_t *pmove) {
 	{ //can't move while in a force land
 		stiffenedUp = qfalse; // JKFF 22-Jun-26: Correction - you can move while in a force land
 	}
+	else if (pm->ps->legsAnim == BOTH_RESISTPUSH || pm->ps->torsoAnim == BOTH_RESISTPUSH)
+	{
+		// JKFF 24-Jun-26: If resisting a push/pull, stiffen up (freeze movement) only if our Push or Pull level is less than 3
+		int pushLevel = pm->ps->fd.forcePowerLevel[FP_PUSH];
+		int pullLevel = pm->ps->fd.forcePowerLevel[FP_PULL];
+
+		if (pushLevel < FORCE_LEVEL_3 || pullLevel < FORCE_LEVEL_3)
+		{
+			stiffenedUp = qtrue;
+		}
+	}
 
 	if ( pm->ps->saberMove == LS_A_LUNGE )
 	{//can't move during lunge
-		// pm->cmd.rightmove = pm->cmd.upmove = 0; // JKFF 22-Jun-26: Correction - you can move while in a lunge
+		pm->cmd.rightmove = pm->cmd.upmove = 0;
 		if ( pm->ps->legsTimer > 500 )
 		{
 			pm->cmd.forwardmove = 127;

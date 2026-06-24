@@ -3019,7 +3019,7 @@ void ForceThrow( gentity_t *self, qboolean pull )
 		if (self->client->ps.forceHandExtend == HANDEXTEND_NONE)
 		{
 			self->client->ps.forceHandExtend = HANDEXTEND_FORCEPUSH;
-			self->client->ps.forceHandExtendTime = level.time + 1000;
+			self->client->ps.forceHandExtendTime = level.time + 500; // JKFF 24-Jun-26: This controls the animation of pushing
 		}
 		else if (self->client->ps.forceHandExtend == HANDEXTEND_KNOCKDOWN && G_InGetUpAnim(&self->client->ps))
 		{
@@ -3029,7 +3029,7 @@ void ForceThrow( gentity_t *self, qboolean pull )
 			}
 			self->client->ps.forceDodgeAnim += 8; //special case, play push on upper torso, but keep playing current knockdown anim on legs
 		}
-		self->client->ps.powerups[PW_DISINT_4] = level.time + 1100;
+		self->client->ps.powerups[PW_DISINT_4] = level.time + 500; // JKFF 24-Jun-26: This controls the allowed frequency of pushing
 		self->client->ps.powerups[PW_PULL] = 0;
 	}
 
@@ -3382,19 +3382,27 @@ void ForceThrow( gentity_t *self, qboolean pull )
 
 				if (otherPushPower && CanCounterThrow(push_list[x], self, pull))
 				{
-					if ( pull )
+					// JKFF 24-Jun-26: Play the corresponding push/pull sound on the defender
+					G_Sound(push_list[x], CHAN_BODY, G_SoundIndex(pull ? "sound/weapons/force/pull.wav" : "sound/weapons/force/push.wav"));
+
+					int pushLevel = push_list[x]->client->ps.fd.forcePowerLevel[FP_PUSH];
+					int pullLevel = push_list[x]->client->ps.fd.forcePowerLevel[FP_PULL];
+
+					// JKFF 24-Jun-26: Brace/plant using BOTH_RESISTPUSH instead of playing active push/pull gestures back
+					push_list[x]->client->ps.forceHandExtend = HANDEXTEND_DODGE;
+
+					if (pushLevel < FORCE_LEVEL_3 || pullLevel < FORCE_LEVEL_3)
 					{
-						G_Sound( push_list[x], CHAN_BODY, G_SoundIndex( "sound/weapons/force/pull.wav" ) );
-						push_list[x]->client->ps.forceHandExtend = HANDEXTEND_FORCEPULL;
-						push_list[x]->client->ps.forceHandExtendTime = level.time + 400;
+						push_list[x]->client->ps.forceDodgeAnim = BOTH_RESISTPUSH;
 					}
 					else
 					{
-						G_Sound( push_list[x], CHAN_BODY, G_SoundIndex( "sound/weapons/force/push.wav" ) );
-						push_list[x]->client->ps.forceHandExtend = HANDEXTEND_FORCEPUSH;
-						push_list[x]->client->ps.forceHandExtendTime = level.time + 1000;
+						// JKFF 24-Jun-26: Trying to find out how to animate only the torso without the legs
+						push_list[x]->client->ps.torsoAnim = BOTH_RESISTPUSH;
 					}
-					push_list[x]->client->ps.powerups[PW_DISINT_4] = push_list[x]->client->ps.forceHandExtendTime + 200;
+					push_list[x]->client->ps.forceHandExtendTime = level.time + 500; // Duration of resistance/bracing
+
+					push_list[x]->client->ps.powerups[PW_DISINT_4] = push_list[x]->client->ps.forceHandExtendTime + 500;
 
 					if (pull)
 					{
@@ -3895,7 +3903,7 @@ void DoGripAction(gentity_t *self, forcePowers_t forcePower)
 		{
 			gripEnt->client->ps.velocity[2] = 30;
 
-			gripEnt->client->ps.forceGripMoveInterval = level.time + 300; //only update velocity every 300ms, so as to avoid heavy bandwidth usage
+			gripEnt->client->ps.forceGripMoveInterval = level.time + 30; //only update velocity every 300ms, so as to avoid heavy bandwidth usage // JKFF 24-Jun-26: changed to 30ms for smoother movement
 		}
 
 		gripEnt->client->ps.otherKiller = self->s.number;
@@ -3987,7 +3995,7 @@ void DoGripAction(gentity_t *self, forcePowers_t forcePower)
 				gripEnt->client->ps.velocity[2] = nvel[2]*700;
 			}
 
-			gripEnt->client->ps.forceGripMoveInterval = level.time + 300; //only update velocity every 300ms, so as to avoid heavy bandwidth usage
+			gripEnt->client->ps.forceGripMoveInterval = level.time + 30; //only update velocity every 300ms, so as to avoid heavy bandwidth usage // JKFF 24-Jun-26: changed to 30ms for smoother movement
 		}
 
 		if ((level.time - gripEnt->client->ps.fd.forceGripStarted) > 3000 && !self->client->ps.fd.forceGripDamageDebounceTime)
