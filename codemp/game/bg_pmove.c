@@ -10291,7 +10291,10 @@ void PmoveSingle (pmove_t *pmove) {
 	}
 	else if (BG_KickMove(pm->ps->saberMove) || BG_KickingAnim(pm->ps->legsAnim))
 	{
-		stiffenedUp = qtrue;
+		if (pm->ps->groundEntityNum != ENTITYNUM_NONE)
+		{
+			stiffenedUp = qtrue; // JKFF 24-Jun-26: Only stiffen up on the ground while performing a kick, otherwise you can move in the air
+		}
 	}
 	else if (BG_InGrappleMove(pm->ps->torsoAnim))
 	{
