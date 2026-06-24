@@ -5506,21 +5506,25 @@ static void PM_Footsteps( void ) {
 				}
 				else
 				{
-					switch (pm->ps->fd.saberAnimLevel)
+					// JKFF 24-Jun-26: Temporary debug log to confirm stance shifting
+					Com_Printf("Current Saber Stance: %d | Saber Holstered State: %d\n", pm->ps->fd.saberAnimLevel, pm->ps->saberHolstered);
+
+					// JKFF 24-Jun-26: Rewritten from a switch checking saberAnimLevel (which falls back when blades are off)
+					// to an if-else chain checking saberAnimLevelBase to correctly catch the 1-blade-on states
+					if (pm->ps->fd.saberAnimLevelBase == SS_STAFF)
 					{
-					case SS_STAFF:
-						if ( pm->ps->saberHolstered > 1 )
+						if (pm->ps->saberHolstered > 1)
 						{//blades off
 							desiredAnim = BOTH_RUN1;
 						}
-						else if ( pm->ps->saberHolstered == 1 )
+						else if (pm->ps->saberHolstered == 1)
 						{//1 blade on
-							desiredAnim = BOTH_RUN2; // JKFF 24-Jun-26: Why does this never get triggered?
+							desiredAnim = BOTH_RUN2; // JKFF 24-Jun-26: Fixed! This now triggers properly
 						}
 						else
 						{
 #if 0
-							if (pm->ps->fd.forcePowersActive & (1<<FP_SPEED))
+							if (pm->ps->fd.forcePowersActive & (1 << FP_SPEED))
 							{
 								desiredAnim = BOTH_RUN1;
 							}
@@ -5531,13 +5535,14 @@ static void PM_Footsteps( void ) {
 #endif
 							desiredAnim = BOTH_RUN_STAFF;
 						}
-						break;
-					case SS_DUAL:
-						if ( pm->ps->saberHolstered > 1 )
+					}
+					else if (pm->ps->fd.saberAnimLevelBase == SS_DUAL)
+					{
+						if (pm->ps->saberHolstered > 1)
 						{//blades off
 							desiredAnim = BOTH_RUN1;
 						}
-						else if ( pm->ps->saberHolstered == 1 )
+						else if (pm->ps->saberHolstered == 1)
 						{//1 saber on
 							desiredAnim = BOTH_RUN2;
 						}
@@ -5545,9 +5550,10 @@ static void PM_Footsteps( void ) {
 						{
 							desiredAnim = BOTH_RUN_DUAL;
 						}
-						break;
-					default:
-						if ( pm->ps->saberHolstered )
+					}
+					else // default (single sabers)
+					{
+						if (pm->ps->saberHolstered)
 						{//saber off
 							desiredAnim = BOTH_RUN1;
 						}
@@ -5555,7 +5561,6 @@ static void PM_Footsteps( void ) {
 						{
 							desiredAnim = BOTH_RUN2;
 						}
-						break;
 					}
 				}
 			}
