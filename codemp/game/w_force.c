@@ -5416,8 +5416,11 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 	if ( !(self->client->ps.fd.forcePowersActive & (1<<FP_LIGHTNING)) )
 		self->client->force.lightningDebounce = level.time;
 
-	if ( (!self->client->ps.fd.forcePowersActive || self->client->ps.fd.forcePowersActive == (1 << FP_DRAIN)) &&
-			!self->client->ps.saberInFlight && (self->client->ps.weapon != WP_SABER || !BG_SaberInSpecial(self->client->ps.saberMove)) )
+	// JKFF 26-Jun-26: Mask out the upper 14 bits (where we stored levels) to accurately check if any actual powers are active
+	int activePowers = self->client->ps.fd.forcePowersActive & 0x3FFFF;
+
+	if ((!activePowers || activePowers == (1 << FP_DRAIN)) &&
+		!self->client->ps.saberInFlight && (self->client->ps.weapon != WP_SABER || !BG_SaberInSpecial(self->client->ps.saberMove)))
 	{//when not using the force, regenerate at 1 point per half second
 		while ( self->client->ps.fd.forcePowerRegenDebounceTime < level.time )
 		{
@@ -5471,6 +5474,12 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 	{
 		self->client->ps.fd.forcePowerRegenDebounceTime = level.time;
 	}
+
+	// JKFF 26-Jun-26: Pack Protect and Absorb levels into the unused upper bits of forcePowersActive
+	// This transmits the exact levels to the client over the network without breaking protocol, allowing universal Shader scaling for Players and NPCs.
+	self->client->ps.fd.forcePowersActive &= ~(15 << 18); // Clear bits 18, 19, 20, 21 (15 is binary 1111)
+	self->client->ps.fd.forcePowersActive |= ((self->client->ps.fd.forcePowerLevel[FP_PROTECT] & 3) << 18);
+	self->client->ps.fd.forcePowersActive |= ((self->client->ps.fd.forcePowerLevel[FP_ABSORB] & 3) << 20);
 
 powersetcheck:
 

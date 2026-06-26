@@ -2949,7 +2949,7 @@ static void CG_SetLerpFrameAnimation( centity_t *cent, clientInfo_t *ci, lerpFra
 			if (resumeFrame)
 			{ //we already checked, and this is the same anim, same flip state, but different speed, so we want to resume with the new speed off of the same frame.
 				trap->G2API_GetBoneFrame(cent->ghoul2, "lower_lumbar", cg.time, &GBAcFrame, NULL, 0);
-				beginFrame = GBAcFrame;
+				beginFrame = (int)(GBAcFrame + 0.5f);
 			}
 
 			//even if resuming, also be sure to check if we are running the same frame on the legs. If so, we want to use their frame no matter what.
@@ -2957,11 +2957,8 @@ static void CG_SetLerpFrameAnimation( centity_t *cent, clientInfo_t *ci, lerpFra
 
 			if ((cent->currentState.torsoAnim) == (cent->currentState.legsAnim) && GBAcFrame >= anim->firstFrame && GBAcFrame <= (anim->firstFrame + anim->numFrames))
 			{ //if the legs are already running this anim, pick up on the exact same frame to avoid the "wobbly spine" problem
-				beginFrame = GBAcFrame;
-
-				// JKFF 24-Jun-26: Float-to-Int truncation causes a subtle desync (i.e. wobble) when copying the frame
-				// We must reset the legs to this exact integer frame right now so they are mathematically locked to the torso
-				trap->G2API_SetBoneAnim(cent->ghoul2, 0, "model_root", firstFrame, lastFrame, flags, animSpeed, cg.time, beginFrame, blendTime);
+				// JKFF 26-Jun-26: Round the float to the nearest integer to prevent sub-frame desync (fixes "washing machine" spine wobble on throws/spawns)
+				beginFrame = (int)(GBAcFrame + 0.5f);
 			}
 #if 0
 			if (firstFrame > lastFrame /* || ci->torsoAnim == newAnimation */) // JKFF: This might be the reason for the wobbly spine - why reset the torso animation if anything about it gets changed - even the speedScale?
@@ -2991,7 +2988,7 @@ static void CG_SetLerpFrameAnimation( centity_t *cent, clientInfo_t *ci, lerpFra
 			{ //we already checked, and this is the same anim, same flip state, but different speed, so we want to resume with the new speed off of the same frame.
 				float GBAcFrame = 0;
 				trap->G2API_GetBoneFrame(cent->ghoul2, "model_root", cg.time, &GBAcFrame, NULL, 0);
-				beginFrame = GBAcFrame;
+				beginFrame = (int)(GBAcFrame + 0.5f);
 			}
 
 			if ((beginFrame < firstFrame) || (beginFrame > lastFrame))
@@ -3001,21 +2998,16 @@ static void CG_SetLerpFrameAnimation( centity_t *cent, clientInfo_t *ci, lerpFra
 
 			if (cent->currentState.torsoAnim == cent->currentState.legsAnim &&
 				(ci->legsAnim != newAnimation || oldSpeed != animSpeed))
-			{ //alright, we are starting an anim on the legs, and that same anim is already playing on the toro, so pick up the frame.
+			{ //alright, we are starting an anim on the legs, and that same anim is already playing on the torso, so pick up the frame.
 				float GBAcFrame = 0;
 				int oldBeginFrame = beginFrame;
 
 				trap->G2API_GetBoneFrame(cent->ghoul2, "lower_lumbar", cg.time, &GBAcFrame, NULL, 0);
-				beginFrame = GBAcFrame;
+				// JKFF 26-Jun-26: Round the float to the nearest integer to prevent sub-frame desync 
+				beginFrame = (int)(GBAcFrame + 0.5f);
 				if ((beginFrame < firstFrame) || (beginFrame > lastFrame))
 				{ //out of range, don't use it then.
 					beginFrame = oldBeginFrame;
-				}
-				else
-				{
-					// JKFF 24-Jun-26: Float-to-Int truncation causes a subtle desync when copying the frame.
-					// We must reset the torso to this exact integer frame right now so they are mathematically locked to the legs
-					trap->G2API_SetBoneAnim(cent->ghoul2, 0, "lower_lumbar", firstFrame, lastFrame, flags, animSpeed, cg.time, beginFrame, blendTime);
 				}
 			}
 
@@ -11000,6 +10992,10 @@ stillDoSaber:
 	//can tell it apart from the JM/duel shaders, but it's still very obvious.
 	if ((cent->currentState.forcePowersActive & (1 << FP_PROTECT)) && (cent->currentState.forcePowersActive & (1 << FP_ABSORB)))
 	{ //aborborb is represented by cyan.. JKFF: Now we want to show a cyan shell around those who have both Protect and Absorb active.
+		// JKFF 26-Jun-26: Unpack the exact Force Levels transmitted by the server in the upper bits of forcePowersActive
+		int protectLevel = (cent->currentState.forcePowersActive >> 18) & 3;
+		int absorbLevel = (cent->currentState.forcePowersActive >> 20) & 3;
+
 		legs.shaderRGBA[0] = 0;
 		legs.shaderRGBA[1] = 255;
 		legs.shaderRGBA[2] = 255;
@@ -11007,11 +11003,21 @@ stillDoSaber:
 
 		legs.renderfx &= ~RF_RGB_TINT;
 		legs.renderfx &= ~RF_FORCE_ENT_ALPHA;
-		legs.customShader = cgs.media.protectShader;
+
+		if (protectLevel <= FORCE_LEVEL_1 && absorbLevel <= FORCE_LEVEL_1)
+		{
+			legs.customShader = cgs.media.playerShieldDamage;
+		}
+		else
+		{
+			legs.customShader = cgs.media.protectShader;
+		}
 
 		trap->R_AddRefEntityToScene(&legs);
 	} else if (cent->currentState.forcePowersActive & (1 << FP_PROTECT))
 	{ //aborb is represented by green..
+		int protectLevel = (cent->currentState.forcePowersActive >> 18) & 3;
+
 		refEntity_t prot;
 
 		memcpy(&prot, &legs, sizeof(prot));
@@ -11023,7 +11029,15 @@ stillDoSaber:
 
 		prot.renderfx &= ~RF_RGB_TINT;
 		prot.renderfx &= ~RF_FORCE_ENT_ALPHA;
-		prot.customShader = cgs.media.protectShader;
+
+		if (protectLevel <= FORCE_LEVEL_1)
+		{
+			prot.customShader = cgs.media.playerShieldDamage;
+		}
+		else
+		{
+			prot.customShader = cgs.media.protectShader;
+		}
 
 		/*
 		if (!prot.modelScale[0] && !prot.modelScale[1] && !prot.modelScale[2])
@@ -11038,6 +11052,8 @@ stillDoSaber:
 		trap->R_AddRefEntityToScene( &prot );
 	} else if (cent->currentState.forcePowersActive & (1 << FP_ABSORB))
 	{ //aborb is represented by blue..
+		int absorbLevel = (cent->currentState.forcePowersActive >> 20) & 3;
+
 		legs.shaderRGBA[0] = 0;
 		legs.shaderRGBA[1] = 0;
 		legs.shaderRGBA[2] = 255;
@@ -11045,7 +11061,15 @@ stillDoSaber:
 
 		legs.renderfx &= ~RF_RGB_TINT;
 		legs.renderfx &= ~RF_FORCE_ENT_ALPHA;
-		legs.customShader = cgs.media.playerShieldDamage;
+
+		if (absorbLevel <= FORCE_LEVEL_1)
+		{
+			legs.customShader = cgs.media.playerShieldDamage;
+		}
+		else
+		{
+			legs.customShader = cgs.media.protectShader;
+		}
 
 		trap->R_AddRefEntityToScene( &legs );
 	}
