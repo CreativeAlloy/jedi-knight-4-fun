@@ -3385,21 +3385,24 @@ void ForceThrow( gentity_t *self, qboolean pull )
 					// JKFF 24-Jun-26: Play the corresponding push/pull sound on the defender
 					G_Sound(push_list[x], CHAN_BODY, G_SoundIndex(pull ? "sound/weapons/force/pull.wav" : "sound/weapons/force/push.wav"));
 
-					int pushLevel = push_list[x]->client->ps.fd.forcePowerLevel[FP_PUSH];
-					int pullLevel = push_list[x]->client->ps.fd.forcePowerLevel[FP_PULL];
-
 					// JKFF 24-Jun-26: Brace/plant using BOTH_RESISTPUSH instead of playing active push/pull gestures back
+					// ALWAYS set forceDodgeAnim, otherwise it defaults to 0 (BOTH_DEATH1 / T-Pose)
 					push_list[x]->client->ps.forceHandExtend = HANDEXTEND_DODGE;
+					push_list[x]->client->ps.forceDodgeAnim = BOTH_RESISTPUSH;
 
-					if (pushLevel < FORCE_LEVEL_3 || pullLevel < FORCE_LEVEL_3)
+					push_list[x]->client->ps.forceHandExtendTime = level.time + 500; // Duration of resistance/bracing
+
+					push_list[x]->client->ps.powerups[PW_DISINT_4] = push_list[x]->client->ps.forceHandExtendTime + 500;
+
+					if (pull)
 					{
-						push_list[x]->client->ps.forceDodgeAnim = BOTH_RESISTPUSH;
+						push_list[x]->client->ps.powerups[PW_PULL] = push_list[x]->client->ps.powerups[PW_DISINT_4];
 					}
 					else
 					{
-						// JKFF 24-Jun-26: Trying to find out how to animate only the torso without the legs
-						push_list[x]->client->ps.torsoAnim = BOTH_RESISTPUSH;
+						push_list[x]->client->ps.powerups[PW_PULL] = 0;
 					}
+
 					push_list[x]->client->ps.forceHandExtendTime = level.time + 500; // Duration of resistance/bracing
 
 					push_list[x]->client->ps.powerups[PW_DISINT_4] = push_list[x]->client->ps.forceHandExtendTime + 500;
@@ -3903,7 +3906,7 @@ void DoGripAction(gentity_t *self, forcePowers_t forcePower)
 		{
 			gripEnt->client->ps.velocity[2] = 30;
 
-			gripEnt->client->ps.forceGripMoveInterval = level.time + 30; //only update velocity every 300ms, so as to avoid heavy bandwidth usage // JKFF 24-Jun-26: changed to 30ms for smoother movement
+			gripEnt->client->ps.forceGripMoveInterval = level.time + 200; //only update velocity every 300ms, so as to avoid heavy bandwidth usage // JKFF 24-Jun-26: changed to 200ms for smoother movement
 		}
 
 		gripEnt->client->ps.otherKiller = self->s.number;

@@ -89,6 +89,7 @@ int uiForcePowersRank[NUM_FORCE_POWERS] = {
 	0//FP_SABERTHROW,
 };
 
+#if 0
 int uiForcePowerDarkLight[NUM_FORCE_POWERS] = //0 == neutral
 { //nothing should be usable at rank 0..
 	FORCE_LIGHTSIDE,//FP_HEAL,//instant
@@ -111,6 +112,33 @@ int uiForcePowerDarkLight[NUM_FORCE_POWERS] = //0 == neutral
 	0//FP_SABERTHROW,
 		//NUM_FORCE_POWERS
 };
+#endif
+
+#if 1
+// JKFF 26-Jun-26: Some Force Powers have been set to "Neutral" to allow a form of Gray Jedi experience
+int uiForcePowerDarkLight[NUM_FORCE_POWERS] = //0 == neutral
+{ //nothing should be usable at rank 0..
+	0,//FP_HEAL,//instant
+	0,//FP_LEVITATION,//hold/duration
+	0,//FP_SPEED,//duration
+	0,//FP_PUSH,//hold/duration
+	0,//FP_PULL,//hold/duration
+	0,//FP_TELEPATHY,//instant
+	0,//FP_GRIP,//hold/duration
+	0,//FP_LIGHTNING,//hold/duration
+	FORCE_DARKSIDE,//FP_RAGE,//duration
+	FORCE_LIGHTSIDE,//FP_PROTECT,//duration
+	FORCE_LIGHTSIDE,//FP_ABSORB,//duration
+	FORCE_LIGHTSIDE,//FP_TEAM_HEAL,//instant
+	FORCE_DARKSIDE,//FP_TEAM_FORCE,//instant
+	FORCE_DARKSIDE,//FP_DRAIN,//hold/duration
+	0,//FP_SEE,//duration
+	0,//FP_SABER_OFFENSE,
+	0,//FP_SABER_DEFENSE,
+	0//FP_SABERTHROW,
+		//NUM_FORCE_POWERS
+};
+#endif
 
 int uiForceStarShaders[NUM_FORCE_STAR_IMAGES][2];
 int uiSaberColorShaders[NUM_SABER_COLORS];

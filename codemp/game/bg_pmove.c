@@ -8423,7 +8423,7 @@ void BG_AdjustClientSpeed(playerState_t *ps, usercmd_t *cmd, int svTime)
 
 	if (ps->fd.forcePowersActive & (1 << FP_GRIP))
 	{
-		ps->speed *= 0.4f;
+		ps->speed *= 0.9f; // JKFF 26-Jun-26: Only a slight speed decrease preferred
 	}
 
 	if (ps->fd.forcePowersActive & (1 << FP_SPEED))

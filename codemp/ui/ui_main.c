@@ -3057,6 +3057,15 @@ static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float
 
 		findex = (ownerDraw - UI_FORCE_RANK)-1;
 		//this will give us the index as long as UI_FORCE_RANK is always one below the first force rank index
+
+		// JKFF 26-Jun-26: Color-code our custom Gray Jedi powers (Heal, Mind Trick, Grip, Lightning) as Yellow/Gold!
+		if (findex == FP_HEAL || findex == FP_TELEPATHY || findex == FP_GRIP || findex == FP_LIGHTNING)
+		{
+			color[0] = 1.0f; // Red
+			color[1] = 0.8f; // Green (Slightly reduced for a gold/yellow tint)
+			color[2] = 0.0f; // Blue
+		}
+
 		if (uiForcePowerDarkLight[findex] && uiForceSide != uiForcePowerDarkLight[findex])
 		{
 			color[0] *= 0.5;
