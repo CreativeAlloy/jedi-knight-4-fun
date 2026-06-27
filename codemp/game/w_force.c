@@ -3390,9 +3390,9 @@ void ForceThrow( gentity_t *self, qboolean pull )
 					push_list[x]->client->ps.forceHandExtend = HANDEXTEND_DODGE;
 					push_list[x]->client->ps.forceDodgeAnim = BOTH_RESISTPUSH;
 
-					push_list[x]->client->ps.forceHandExtendTime = level.time + 500; // Duration of resistance/bracing
+					push_list[x]->client->ps.forceHandExtendTime = level.time + 700; // Duration of resistance/bracing
 
-					push_list[x]->client->ps.powerups[PW_DISINT_4] = push_list[x]->client->ps.forceHandExtendTime + 500;
+					push_list[x]->client->ps.powerups[PW_DISINT_4] = push_list[x]->client->ps.forceHandExtendTime + 700; // Duration of resistance/bracing
 
 					if (pull)
 					{
@@ -3403,9 +3403,9 @@ void ForceThrow( gentity_t *self, qboolean pull )
 						push_list[x]->client->ps.powerups[PW_PULL] = 0;
 					}
 
-					push_list[x]->client->ps.forceHandExtendTime = level.time + 500; // Duration of resistance/bracing
+					push_list[x]->client->ps.forceHandExtendTime = level.time + 700; // Duration of resistance/bracing
 
-					push_list[x]->client->ps.powerups[PW_DISINT_4] = push_list[x]->client->ps.forceHandExtendTime + 500;
+					push_list[x]->client->ps.powerups[PW_DISINT_4] = push_list[x]->client->ps.forceHandExtendTime + 700; // Duration of resistance/bracing
 
 					if (pull)
 					{
