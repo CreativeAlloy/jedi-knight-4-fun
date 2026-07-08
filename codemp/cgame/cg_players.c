@@ -3493,7 +3493,7 @@ static void CG_PlayerAnimation( centity_t *cent, int *legsOld, int *legs, float 
 	}
 
 // JKFF 08-Jul-26: State-change debug logger to catch frame delta conflicts during transitions
-#if 1 // Toggle to 0 to disable
+#if 0 // Toggle to 0 to disable
 	if (cent->currentState.number == cg.predictedPlayerState.clientNum && cent->ghoul2)
 	{
 		static int lastTorsoAnim = -1;
