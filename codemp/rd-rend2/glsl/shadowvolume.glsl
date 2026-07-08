@@ -107,28 +107,33 @@ void main()
 	mat4 MVP = u_viewProjectionMatrix * u_ModelMatrix;
 
 	if (dot(cross(BmA,CmA), -u_ModelLightDir.xyz) > 0.0) {
-		vec3 L = u_ModelLightDir.xyz*u_LocalLightRadius;
+		vec3 L = u_ModelLightDir.xyz * u_LocalLightRadius;
+
+		// --- JKFF Z-FIGHTING FIX ---
+		// Push the start of the shadow volume slightly backwards (away from the model surface)
+		// so it doesn't Z-fight and clip through the character's low-poly back!
+		vec3 bias = u_ModelLightDir.xyz * -0.5;
 
 		// front cap
-		gl_Position = MVP * vec4(var_Position[0].xyz, 1.0);
+		gl_Position = MVP * vec4(var_Position[0].xyz + bias, 1.0);
 		EmitVertex();
-		gl_Position = MVP * vec4(var_Position[1].xyz, 1.0);
+		gl_Position = MVP * vec4(var_Position[1].xyz + bias, 1.0);
 		EmitVertex();
-		gl_Position = MVP * vec4(var_Position[2].xyz, 1.0);
+		gl_Position = MVP * vec4(var_Position[2].xyz + bias, 1.0);
 		EmitVertex();
 		EndPrimitive();
 
 		// sides
-		quad(var_Position[0], var_Position[1], L, MVP);
-		quad(var_Position[1], var_Position[2], L, MVP);
-		quad(var_Position[2], var_Position[0], L, MVP);
+		quad(var_Position[0] + bias, var_Position[1] + bias, L, MVP);
+		quad(var_Position[1] + bias, var_Position[2] + bias, L, MVP);
+		quad(var_Position[2] + bias, var_Position[0] + bias, L, MVP);
 
 		// back cap
-		gl_Position = MVP * vec4(var_Position[2].xyz - L, 1.0);
+		gl_Position = MVP * vec4((var_Position[2].xyz + bias) - L, 1.0);
 		EmitVertex();
-		gl_Position = MVP * vec4(var_Position[1].xyz - L, 1.0);
+		gl_Position = MVP * vec4((var_Position[1].xyz + bias) - L, 1.0);
 		EmitVertex();
-		gl_Position = MVP * vec4(var_Position[0].xyz - L, 1.0);
+		gl_Position = MVP * vec4((var_Position[0].xyz + bias) - L, 1.0);
 		EmitVertex();
 		EndPrimitive();
     }
