@@ -2966,13 +2966,33 @@ static void CG_SetLerpFrameAnimation( centity_t *cent, clientInfo_t *ci, lerpFra
 				beginFrame = -1;
 			}
 #endif
-			//	JKFF 24-Jun-26: I commented out the code above due to the comment inside the parentheses; I prefer clean code to be fed to the compiler
-			if (firstFrame > lastFrame)
+			// JKFF 08-Jul-26: PROPER bounds check with a 1-frame cushion to prevent sub-frame desync wobbling!
+			if (beginFrame != -1)
 			{
-				beginFrame = -1;
+				int minF = (firstFrame < lastFrame) ? firstFrame : lastFrame;
+				int maxF = (firstFrame > lastFrame) ? firstFrame : lastFrame;
+
+				if (beginFrame < minF - 1 || beginFrame > maxF + 1)
+				{
+					beginFrame = -1;
+				}
+				else
+				{
+					// Safely clamp the overshoot so Ghoul2 receives a valid frame parameter
+					if (beginFrame < minF) beginFrame = minF;
+					if (beginFrame > maxF) beginFrame = maxF;
+				}
 			}
 
-			trap->G2API_SetBoneAnim(cent->ghoul2, 0, "lower_lumbar", firstFrame, lastFrame, flags, animSpeed,cg.time, beginFrame, blendTime);
+			// JKFF 08-Jul-26: MORE ANIMATION DEBUGGING!!?
+#if 1
+			if (cent->currentState.number == cg.predictedPlayerState.clientNum && newAnimation == BOTH_WALKBACK_STAFF)
+			{
+				Com_Printf("JKFF_SPAM_CHECK: Torso SetBoneAnim Called! SpeedMult: %f\n", animSpeedMult);
+			}
+#endif
+
+			trap->G2API_SetBoneAnim(cent->ghoul2, 0, "lower_lumbar", firstFrame, lastFrame, flags, animSpeed, cg.time, beginFrame, blendTime);
 
 			// Update the torso frame with the new animation
 			cent->pe.torso.frame = firstFrame;
@@ -2991,9 +3011,22 @@ static void CG_SetLerpFrameAnimation( centity_t *cent, clientInfo_t *ci, lerpFra
 				beginFrame = (int)(GBAcFrame + 0.5f);
 			}
 
-			if ((beginFrame < firstFrame) || (beginFrame > lastFrame))
-			{ //out of range, don't use it then.
-				beginFrame = -1;
+			// JKFF 08-Jul-26: PROPER bounds check with a 1-frame cushion to prevent sub-frame desync wobbling!
+			if (beginFrame != -1)
+			{
+				int minF = (firstFrame < lastFrame) ? firstFrame : lastFrame;
+				int maxF = (firstFrame > lastFrame) ? firstFrame : lastFrame;
+
+				if (beginFrame < minF - 1 || beginFrame > maxF + 1)
+				{
+					beginFrame = -1;
+				}
+				else
+				{
+					// Safely clamp the overshoot so Ghoul2 receives a valid frame parameter
+					if (beginFrame < minF) beginFrame = minF;
+					if (beginFrame > maxF) beginFrame = maxF;
+				}
 			}
 
 			if (cent->currentState.torsoAnim == cent->currentState.legsAnim &&
@@ -3005,9 +3038,23 @@ static void CG_SetLerpFrameAnimation( centity_t *cent, clientInfo_t *ci, lerpFra
 				trap->G2API_GetBoneFrame(cent->ghoul2, "lower_lumbar", cg.time, &GBAcFrame, NULL, 0);
 				// JKFF 26-Jun-26: Round the float to the nearest integer to prevent sub-frame desync 
 				beginFrame = (int)(GBAcFrame + 0.5f);
-				if ((beginFrame < firstFrame) || (beginFrame > lastFrame))
-				{ //out of range, don't use it then.
-					beginFrame = oldBeginFrame;
+
+				// JKFF 08-Jul-26: PROPER bounds check with a 1-frame cushion to prevent sub-frame desync wobbling!
+				if (beginFrame != -1)
+				{
+					int minF = (firstFrame < lastFrame) ? firstFrame : lastFrame;
+					int maxF = (firstFrame > lastFrame) ? firstFrame : lastFrame;
+
+					if (beginFrame < minF - 1 || beginFrame > maxF + 1)
+					{
+						beginFrame = oldBeginFrame; // FALLBACK TO OLD FRAME INSTEAD OF -1
+					}
+					else
+					{
+						// Safely clamp the overshoot so Ghoul2 receives a valid frame parameter
+						if (beginFrame < minF) beginFrame = minF;
+						if (beginFrame > maxF) beginFrame = maxF;
+					}
 				}
 			}
 
@@ -3386,7 +3433,7 @@ static void CG_PlayerAnimation( centity_t *cent, int *legsOld, int *legs, float 
 	}
 
 	// JKFF 24-Jun-26: Calculate Torso Speed Scale independently of locomotion (legs) scale to prevent attacks from speeding up during movement
-	if ((cent->currentState.torsoAnim == cent->currentState.legsAnim) || cent->currentState.torsoAnim == BOTH_WALK2) // ???
+	if (cent->currentState.torsoAnim == cent->currentState.legsAnim)
 	{
 		torsoSpeedScale = legsSpeedScale;
 	}
@@ -3444,6 +3491,40 @@ static void CG_PlayerAnimation( centity_t *cent, int *legsOld, int *legs, float 
 		*torso = cent->pe.torso.frame;
 		*torsoBackLerp = cent->pe.torso.backlerp;
 	}
+
+// JKFF 08-Jul-26: State-change debug logger to catch frame delta conflicts during transitions
+#if 1 // Toggle to 0 to disable
+	if (cent->currentState.number == cg.predictedPlayerState.clientNum && cent->ghoul2)
+	{
+		static int lastTorsoAnim = -1;
+		static int lastLegsAnim = -1;
+
+		int currentTorsoAnim = cent->currentState.torsoAnim;
+		int currentLegsAnim = cent->currentState.legsAnim;
+
+		if (currentTorsoAnim != lastTorsoAnim || currentLegsAnim != lastLegsAnim)
+		{
+			float legsGBA = 0.0f;
+			float torsoGBA = 0.0f;
+
+			// Extract the actual bone frames rendered on screen
+			trap->G2API_GetBoneFrame(cent->ghoul2, "model_root", cg.time, &legsGBA, NULL, 0);
+			trap->G2API_GetBoneFrame(cent->ghoul2, "lower_lumbar", cg.time, &torsoGBA, NULL, 0);
+
+			int lFrame = (int)(legsGBA + 0.5f);
+			int tFrame = (int)(torsoGBA + 0.5f);
+			int fDelta = abs(tFrame - lFrame);
+
+			Com_Printf("JKFF_DEBUG_ANIM: [Torso: %s (%d) F: %d] [Legs: %s (%d) F: %d] | Frame Delta: %d\n",
+				GetStringForID(animTable, currentTorsoAnim), currentTorsoAnim, tFrame,
+				GetStringForID(animTable, currentLegsAnim), currentLegsAnim, lFrame,
+				fDelta);
+
+			lastTorsoAnim = currentTorsoAnim;
+			lastLegsAnim = currentLegsAnim;
+		}
+	}
+#endif
 }
 
 
