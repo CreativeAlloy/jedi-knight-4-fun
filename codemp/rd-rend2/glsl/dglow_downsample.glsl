@@ -67,7 +67,9 @@ void main()
 	// Cap the maximum possible brightness that can enter the blur passes.
 	// This prevents bugged engine particles (like the Repeater alt-fire) 
 	// from carrying RGB values of 5000.0 and stamping solid white squares.
-	color = min(color, vec3(10.0));
+	// Lowered from 10.0 to prevent overlapping additive effects
+	// (like Force Lightning) from blooming into a solid white blob.
+	color = min(color, vec3(1.5));
 
 	// 4. Output the blurred color, and FORCE the alpha to 0.5!
 	out_Color = vec4(color, 0.5);
