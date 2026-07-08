@@ -29,22 +29,45 @@ out vec4 out_Color;
 
 void main()
 {
+	// 1. THE ITERATIVE HACK
+	// Check the alpha channel of the center pixel. 
+	// If it is exactly 0.5, we wrote it during the previous blur pass, so we skip the threshold!
+	float centerAlpha = texture(u_TextureMap, var_TexCoords).a;
+	bool isFirstPass = (abs(centerAlpha - 0.5) > 0.1);
+
 	// Based on "Next Generation Post Processing in Call of Duty: Advanced Warfare":
 	// http://advances.realtimerendering.com/s2014/index.html
-	vec4 color = vec4(0.0);
-	color += 0.25 * 0.125 * texture(u_TextureMap, var_TexCoords + (u_InvTexRes * vec2(-2.0, -2.0)));
-	color += 0.5 * 0.25 * texture(u_TextureMap, var_TexCoords + (u_InvTexRes * vec2( 0.0, -2.0)));
-	color += 0.25 * 0.125 * texture(u_TextureMap, var_TexCoords + (u_InvTexRes * vec2( 2.0, -2.0)));
-	color += 0.25 * 0.5 * texture(u_TextureMap, var_TexCoords + (u_InvTexRes * vec2(-1.0, -1.0)));
-	color += 0.25 * 0.5 * texture(u_TextureMap, var_TexCoords + (u_InvTexRes * vec2( 1.0, -1.0)));
-	color += 0.25 * 0.125 * texture(u_TextureMap, var_TexCoords + (u_InvTexRes * vec2(-2.0,  0.0)));
-	color += 0.125 * texture(u_TextureMap, var_TexCoords + (u_InvTexRes * vec2( 0.0,  0.0)));
-	color += 0.25 * 0.125 * texture(u_TextureMap, var_TexCoords + (u_InvTexRes * vec2( 2.0, -2.0)));
-	color += 0.25 * 0.5 * texture(u_TextureMap, var_TexCoords + (u_InvTexRes * vec2(-1.0,  1.0)));
-	color += 0.25 * 0.5 * texture(u_TextureMap, var_TexCoords + (u_InvTexRes * vec2( 1.0,  1.0)));
-	color += 0.25 * 0.125 * texture(u_TextureMap, var_TexCoords + (u_InvTexRes * vec2(-2.0,  2.0)));
-	color += 0.5 * 0.25 * texture(u_TextureMap, var_TexCoords + (u_InvTexRes * vec2( 0.0,  2.0)));
-	color += 0.25 * 0.125 * texture(u_TextureMap, var_TexCoords + (u_InvTexRes * vec2( 2.0,  2.0)));
+	vec3 color = vec3(0.0);
+	color += 0.25 * 0.125 * texture(u_TextureMap, var_TexCoords + (u_InvTexRes * vec2(-2.0, -2.0))).rgb;
+	color += 0.5 * 0.25 * texture(u_TextureMap, var_TexCoords + (u_InvTexRes * vec2( 0.0, -2.0))).rgb;
+	color += 0.25 * 0.125 * texture(u_TextureMap, var_TexCoords + (u_InvTexRes * vec2( 2.0, -2.0))).rgb;
+	color += 0.25 * 0.5 * texture(u_TextureMap, var_TexCoords + (u_InvTexRes * vec2(-1.0, -1.0))).rgb;
+	color += 0.25 * 0.5 * texture(u_TextureMap, var_TexCoords + (u_InvTexRes * vec2( 1.0, -1.0))).rgb;
+	color += 0.25 * 0.125 * texture(u_TextureMap, var_TexCoords + (u_InvTexRes * vec2(-2.0,  0.0))).rgb;
+	color += 0.125 * texture(u_TextureMap, var_TexCoords + (u_InvTexRes * vec2( 0.0,  0.0))).rgb;
+	
+	// FIXED OPENJK TYPO: Changed vec2(2.0, -2.0) to vec2(2.0, 0.0)
+	color += 0.25 * 0.125 * texture(u_TextureMap, var_TexCoords + (u_InvTexRes * vec2( 2.0,  0.0))).rgb;
+	
+	color += 0.25 * 0.5 * texture(u_TextureMap, var_TexCoords + (u_InvTexRes * vec2(-1.0,  1.0))).rgb;
+	color += 0.25 * 0.5 * texture(u_TextureMap, var_TexCoords + (u_InvTexRes * vec2( 1.0,  1.0))).rgb;
+	color += 0.25 * 0.125 * texture(u_TextureMap, var_TexCoords + (u_InvTexRes * vec2(-2.0,  2.0))).rgb;
+	color += 0.5 * 0.25 * texture(u_TextureMap, var_TexCoords + (u_InvTexRes * vec2( 0.0,  2.0))).rgb;
+	color += 0.25 * 0.125 * texture(u_TextureMap, var_TexCoords + (u_InvTexRes * vec2( 2.0,  2.0))).rgb;
 
-	out_Color = color;
+	// 3. THRESHOLD ONLY ON FIRST PASS
+	if (isFirstPass)
+	{
+		// Check the maximum color component to treat Red, Green, and Blue equally
+		float brightness = max(color.r, max(color.g, color.b));
+		
+		const float threshold = 0.70; 
+		
+		// Map the factor (we don't need a heavy multiplier here anymore, keeping color pure!)
+		float factor = clamp((brightness - threshold) / (1.0 - threshold), 0.0, 1.0); 
+		color *= factor;
+	}
+
+	// 4. Output the blurred color, and FORCE the alpha to 0.5!
+	out_Color = vec4(color, 0.5);
 }

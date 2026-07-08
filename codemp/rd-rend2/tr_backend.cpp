@@ -2819,6 +2819,7 @@ const void *RB_PostProcess(const void *data)
 	}
 #endif
 
+#if 0
 	if (r_dynamicGlow->integer)
 	{
 		RB_BloomDownscale(tr.glowImage, tr.glowFboScaled[0]);
@@ -2829,6 +2830,22 @@ const void *RB_PostProcess(const void *data)
 		for ( int i = numPasses - 2; i >= 0; i-- )
 			RB_BloomUpscale(tr.glowFboScaled[i + 1], tr.glowFboScaled[i]);
 	}
+#endif
+	// JKFF 08-Jul-26: Vanilla behavior above
+
+	if (r_dynamicGlow->integer)
+	{
+		// Stable, single-pass screen-space downscale
+		RB_BloomDownscale(srcFbo, tr.glowFboScaled[0]);
+
+		int numPasses = Com_Clampi(1, ARRAY_LEN(tr.glowFboScaled), r_dynamicGlowPasses->integer);
+		for (int i = 1; i < numPasses; i++)
+			RB_BloomDownscale(tr.glowFboScaled[i - 1], tr.glowFboScaled[i]);
+
+		for (int i = numPasses - 2; i >= 0; i--)
+			RB_BloomUpscale(tr.glowFboScaled[i + 1], tr.glowFboScaled[i]);
+	}
+
 	srcBox[0] = backEnd.viewParms.viewportX;
 	srcBox[1] = backEnd.viewParms.viewportY;
 	srcBox[2] = backEnd.viewParms.viewportWidth;
