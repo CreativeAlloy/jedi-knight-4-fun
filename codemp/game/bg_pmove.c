@@ -5599,7 +5599,8 @@ static void PM_Footsteps( void ) {
 						}
 						else
 						{
-							desiredAnim = BOTH_WALKBACK_STAFF;
+							// desiredAnim = BOTH_WALKBACK_STAFF;
+							desiredAnim = BOTH_WALKBACK_DUAL; // JKFF 08-Jul-26: Sometimes the solution is to end your suffering
 						}
 					}
 					else if (pm->ps->fd.saberAnimLevelBase == SS_DUAL)
