@@ -58,15 +58,16 @@ void main()
 	// 3. THRESHOLD ONLY ON FIRST PASS
 	if (isFirstPass)
 	{
-		// Check the maximum color component to treat Red, Green, and Blue equally
 		float brightness = max(color.r, max(color.g, color.b));
-		
-		const float threshold = 0.70; 
-		
-		// Map the factor (we don't need a heavy multiplier here anymore, keeping color pure!)
-		float factor = clamp((brightness - threshold) / (1.0 - threshold), 0.0, 1.0); 
+		float factor = pow(min(1.0, brightness), 5.0); 
 		color *= factor;
 	}
+
+	// --- ANTI-SUPERNOVA DEFENSE ---
+	// Cap the maximum possible brightness that can enter the blur passes.
+	// This prevents bugged engine particles (like the Repeater alt-fire) 
+	// from carrying RGB values of 5000.0 and stamping solid white squares.
+	color = min(color, vec3(10.0));
 
 	// 4. Output the blurred color, and FORCE the alpha to 0.5!
 	out_Color = vec4(color, 0.5);
