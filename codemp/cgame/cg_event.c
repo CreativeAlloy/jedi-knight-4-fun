@@ -691,6 +691,8 @@ void CG_PainEvent( centity_t *cent, int health ) {
 		return;
 	}
 
+	// JKFF 09-Jul-26: These should be reversed
+#if 0
 	if ( health < 25 ) {
 		snd = "*pain25.wav";
 	} else if ( health < 50 ) {
@@ -700,6 +702,20 @@ void CG_PainEvent( centity_t *cent, int health ) {
 	} else {
 		snd = "*pain100.wav";
 	}
+#endif
+	if (health < 25) {
+		snd = "*pain100.wav";
+	}
+	else if (health < 50) {
+		snd = "*pain75.wav";
+	}
+	else if (health < 75) {
+		snd = "*pain50.wav";
+	}
+	else {
+		snd = "*pain25.wav";
+	}
+
 	trap->S_StartSound( NULL, cent->currentState.number, CHAN_VOICE,
 		CG_CustomSound( cent->currentState.number, snd ) );
 
