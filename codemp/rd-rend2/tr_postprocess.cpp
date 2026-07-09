@@ -549,10 +549,15 @@ void RB_ApplySSGI(FBO_t* srcFbo)
 	qglDrawArrays(GL_TRIANGLES, 0, 3);
 
 	// --- JKFF DE-NOISER ---
-	// Melt the ray-marching grain into a smooth, soft ambient glow!
-	// (Uses quarterFbo[1] as a temporary ping-pong buffer)
 	RB_GaussianBlur(tr.quarterFbo[0], tr.quarterFbo[1], tr.quarterFbo[0], 2.0f);
 
-	// Blit the SMOOTHED result back with the vertical coordinate flip corrected
+	// --- JKFF HARDWARE BILINEAR INTERPOLATION ---
+	// Force OpenGL to scale the 1/4th res FBO smoothly over your full screen 
+	// instead of using blocky/pixelated GL_NEAREST scaling!
+	GL_Bind(tr.quarterFbo[0]->colorImage[0]);
+	qglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	qglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	// Blit the SMOOTHED and BI-LINEARLY filtered result back 
 	FBO_Blit(tr.quarterFbo[0], quarterBox, NULL, srcFbo, srcBox, NULL, NULL, GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
 }
