@@ -268,6 +268,8 @@ cvar_t	*r_dynamicGlowSoft;
 cvar_t	*r_dynamicGlowWidth;
 cvar_t	*r_dynamicGlowHeight;
 
+cvar_t	*r_mockRayTracing;
+
 cvar_t *r_debugContext;
 cvar_t *r_debugWeather;
 
@@ -1449,6 +1451,8 @@ void R_Register( void )
 	r_dynamicGlowSoft					= ri.Cvar_Get( "r_dynamicGlowSoft",		"1",		CVAR_ARCHIVE, "" );
 	r_dynamicGlowWidth					= ri.Cvar_Get( "r_dynamicGlowWidth",		"320",		CVAR_ARCHIVE|CVAR_LATCH, "" );
 	r_dynamicGlowHeight					= ri.Cvar_Get( "r_dynamicGlowHeight",		"240",		CVAR_ARCHIVE|CVAR_LATCH, "" );
+
+	r_mockRayTracing					= ri.Cvar_Get( "r_mockRayTracing", "0", CVAR_ARCHIVE, "");
 
 	r_debugContext						= ri.Cvar_Get( "r_debugContext",			"0",		CVAR_LATCH, "" );
 	r_debugWeather						= ri.Cvar_Get( "r_debugWeather",			"0",		CVAR_ARCHIVE, "" );

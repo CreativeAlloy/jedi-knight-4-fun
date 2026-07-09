@@ -2833,6 +2833,12 @@ const void *RB_PostProcess(const void *data)
 #endif
 	// JKFF 08-Jul-26: Vanilla behavior above
 
+	// JKFF 09-Jul-26: Screen-Space Ray Traced Global Illumination
+	if (r_mockRayTracing->integer)
+	{
+		RB_ApplySSGI(srcFbo);
+	}
+
 	if (r_dynamicGlow->integer)
 	{
 		// Stable, single-pass screen-space downscale

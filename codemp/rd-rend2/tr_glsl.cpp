@@ -2189,6 +2189,30 @@ static int GLSL_LoadGPUProgramDynamicGlowDownsample(
 	return 1;
 }
 
+static int GLSL_LoadGPUProgramSSGI(
+	ShaderProgramBuilder& builder,
+	Allocator& scratchAlloc)
+{
+	GLSL_LoadGPUProgramBasic(
+		builder,
+		scratchAlloc,
+		&tr.ssgiShader,
+		"ssgi",
+		fallback_ssgiProgram,
+		0);
+
+	GLSL_InitUniforms(&tr.ssgiShader);
+
+	// Map uniforms to explicit GPU Texture Units
+	qglUseProgram(tr.ssgiShader.program);
+	GLSL_SetUniformInt(&tr.ssgiShader, UNIFORM_TEXTUREMAP, 0);       // Maps u_TextureMap to TMU 0
+	GLSL_SetUniformInt(&tr.ssgiShader, UNIFORM_SCREENDEPTHMAP, 1);   // Maps u_ScreenDepthMap to TMU 1
+	qglUseProgram(0);
+
+	GLSL_FinishGPUShader(&tr.ssgiShader);
+	return 1;
+}
+
 static int GLSL_LoadGPUProgramSurfaceSprites(
 	ShaderProgramBuilder& builder,
 	Allocator& scratchAlloc )
@@ -2366,6 +2390,7 @@ void GLSL_LoadGPUShaders()
 	numEtcShaders += GLSL_LoadGPUProgramGaussianBlur(builder, allocator);
 	numEtcShaders += GLSL_LoadGPUProgramDynamicGlowUpsample(builder, allocator);
 	numEtcShaders += GLSL_LoadGPUProgramDynamicGlowDownsample(builder, allocator);
+	numEtcShaders += GLSL_LoadGPUProgramSSGI(builder, allocator); // JKFF 09-Jul-26: Load Screen-Space GI
 	numEtcShaders += GLSL_LoadGPUProgramSurfaceSprites(builder, allocator);
 	numEtcShaders += GLSL_LoadGPUProgramWeather(builder, allocator);
 
@@ -2426,6 +2451,7 @@ void GLSL_ShutdownGPUShaders(void)
 	GLSL_DeleteGPUShader(&tr.glowCompositeShader);
 	GLSL_DeleteGPUShader(&tr.dglowDownsample);
 	GLSL_DeleteGPUShader(&tr.dglowUpsample);
+	GLSL_DeleteGPUShader(&tr.ssgiShader); // JKFF 09-Jul-26: Clean up Screen-Space GI
 
 	for (i = 0; i < SSDEF_COUNT; ++i)
 		GLSL_DeleteGPUShader(&tr.spriteShader[i]);

@@ -35,5 +35,6 @@ void RB_VBlur(FBO_t *srcFbo, FBO_t *dstFbo, float strength);
 void RB_BloomDownscale(image_t *sourceImage, FBO_t *destFBO);
 void RB_BloomDownscale(FBO_t *sourceFBO, FBO_t *destFBO);
 void RB_BloomUpscale(FBO_t *sourceFBO, FBO_t *destFBO);
+void RB_ApplySSGI(FBO_t* srcFbo); // JKFF 09-Jul-26: Screen-Space GI
 
 #endif

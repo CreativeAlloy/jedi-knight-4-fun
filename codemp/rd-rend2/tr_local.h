@@ -99,6 +99,7 @@ extern cvar_t	*r_inGameVideo;
 extern cvar_t	*r_fastsky;
 extern cvar_t	*r_drawSun;
 extern cvar_t	*r_dynamiclight;
+extern cvar_t	*r_mockRayTracing;
 
 extern cvar_t	*r_lodbias;
 extern cvar_t	*r_lodscale;
@@ -2511,6 +2512,7 @@ typedef struct trGlobals_s {
 	shaderProgram_t glowCompositeShader;
 	shaderProgram_t dglowDownsample;
 	shaderProgram_t dglowUpsample;
+	shaderProgram_t ssgiShader;
 	shaderProgram_t spriteShader[SSDEF_COUNT];
 	shaderProgram_t weatherUpdateShader;
 	shaderProgram_t weatherShader;

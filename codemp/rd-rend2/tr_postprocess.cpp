@@ -526,3 +526,33 @@ void RB_BloomUpscale(FBO_t *sourceFBO, FBO_t *destFBO)
 	// Draw fullscreen triangle
 	qglDrawArrays(GL_TRIANGLES, 0, 3);
 }
+
+void RB_ApplySSGI(FBO_t* srcFbo)
+{
+	vec4i_t srcBox = { 0, 0, srcFbo->width, srcFbo->height };
+	vec4i_t quarterBox = { 0, tr.quarterFbo[0]->height, tr.quarterFbo[0]->width, -tr.quarterFbo[0]->height };
+
+	FBO_Bind(tr.quarterFbo[0]);
+	GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO);
+
+	qglViewport(0, 0, tr.quarterFbo[0]->width, tr.quarterFbo[0]->height);
+	qglClearBufferfv(GL_COLOR, 0, colorBlack);
+
+	GLSL_BindProgram(&tr.ssgiShader);
+
+	GL_BindToTMU(srcFbo->colorImage[0], 0);
+	GL_BindToTMU(tr.renderDepthImage, 1);
+
+	vec2_t invTexRes = { 1.0f / srcFbo->width, 1.0f / srcFbo->height };
+	GLSL_SetUniformVec2(&tr.ssgiShader, UNIFORM_INVTEXRES, invTexRes);
+
+	qglDrawArrays(GL_TRIANGLES, 0, 3);
+
+	// --- JKFF DE-NOISER ---
+	// Melt the ray-marching grain into a smooth, soft ambient glow!
+	// (Uses quarterFbo[1] as a temporary ping-pong buffer)
+	RB_GaussianBlur(tr.quarterFbo[0], tr.quarterFbo[1], tr.quarterFbo[0], 2.0f);
+
+	// Blit the SMOOTHED result back with the vertical coordinate flip corrected
+	FBO_Blit(tr.quarterFbo[0], quarterBox, NULL, srcFbo, srcBox, NULL, NULL, GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
+}
